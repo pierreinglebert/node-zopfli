@@ -1,0 +1,11 @@
+{
+  "author": "Pierre Inglebert",
+  "name": "node-zopfli-png",
+  "description": "Compress PNG data with zopfli algorithm",
+  "version": "0.1.0",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}

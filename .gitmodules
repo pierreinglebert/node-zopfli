@@ -1,0 +1,3 @@
+[submodule "zopfli"]
+	path = zopfli
+	url = https://code.google.com/p/zopfli/
