@@ -6,8 +6,74 @@
 
 using namespace v8;
 
-Handle<Value> Method(const Arguments& args) {
+Handle<Value> Compress(const Arguments& args) {
   HandleScope scope;
+
+  /*if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
+    return scope.Close(Undefined());
+  }*/
+  
+  if(!args[0]->IsBoolean()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_transparent'")));
+    return scope.Close(Undefined());
+  }
+  // Allow altering hidden colors of fully transparent pixels
+  bool lossy_transparent = args[0];
+  
+  if(!args[1]->IsBoolean()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_8bit'")));
+    return scope.Close(Undefined());
+  }
+  // Convert 16-bit per channel images to 8-bit per channel
+  bool lossy_8bit = args[1];
+
+  // Filter strategies to try
+  //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
+  std::vector<ZopfliPNGFilterStrategy> filter_strategies = args[3];
+
+  if(!args[4]->IsBoolean()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'auto_filter_strategy'")));
+    return scope.Close(Undefined());
+  }
+  // Automatically choose filter strategy using less good compression
+  bool auto_filter_strategy = args[4];
+
+  if(!args[5]->IsBoolean()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'keepchunks'")));
+    return scope.Close(Undefined());
+  }
+  // PNG chunks to keep
+  // chunks to literally copy over from the original PNG to the resulting one
+  std::vector<std::string> keepchunks = args[5];
+
+  if(!args[6]->IsBoolean()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'use_zopfli'")));
+    return scope.Close(Undefined());
+  }
+  // Use Zopfli deflate compression
+  bool use_zopfli = args[6];
+
+  if(!args[7]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations'")));
+    return scope.Close(Undefined());
+  }
+  // Zopfli number of iterations
+  int num_iterations = args[7];
+
+  if(!args[8]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations_large'")));
+    return scope.Close(Undefined());
+  }
+  // Zopfli number of iterations on images > 200ko
+  int num_iterations_large = args[8];
+
+  if(!args[9]->IsNumber()) {
+    ThrowException(Exception::TypeError(String::New("Wrong argument 'block_split_strategy'")));
+    return scope.Close(Undefined());
+  }
+  // 0=none, 1=first, 2=last, 3=both
+  int block_split_strategy = args[9];
 
 
   ZopfliPNGOptions png_options;
