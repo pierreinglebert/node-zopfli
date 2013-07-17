@@ -1,6 +1,9 @@
 #include <node.h>
 #include <v8.h>
 
+#include <iostream>
+
+
 #include "lodepng/lodepng.h"
 #include "zopflipng_lib.h"
 
@@ -8,75 +11,93 @@ using namespace v8;
 
 Handle<Value> Compress(const Arguments& args) {
   HandleScope scope;
-
-  /*if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-    return scope.Close(Undefined());
-  }*/
   
+  ZopfliPNGOptions png_options;
+
   if(!args[0]->IsBoolean()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_transparent'")));
     return scope.Close(Undefined());
   }
   // Allow altering hidden colors of fully transparent pixels
-  bool lossy_transparent = args[0];
+  png_options.lossy_transparent = args[0]->ToBoolean()->Value();
   
   if(!args[1]->IsBoolean()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_8bit'")));
     return scope.Close(Undefined());
   }
   // Convert 16-bit per channel images to 8-bit per channel
-  bool lossy_8bit = args[1];
+  png_options.lossy_8bit = args[1]->ToBoolean()->Value();
 
   // Filter strategies to try
   //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
-  std::vector<ZopfliPNGFilterStrategy> filter_strategies = args[3];
+  //std::vector<ZopfliPNGFilterStrategy> filter_strategies = args[3];
+  Handle<Array> filter_strategies = Handle<Array>::Cast(args[2]);
+  for (uint32_t i = 0; i < filter_strategies->Length(); i++) {
+    std::string strStrategy(*String::AsciiValue(filter_strategies->Get(Integer::New(i))->ToString()));
+    ZopfliPNGFilterStrategy strategy = kStrategyZero;
+    if(strStrategy.compare("zero")) { strategy = kStrategyZero; }
+    else if(strStrategy.compare("one")) { strategy = kStrategyOne; }
+    else if(strStrategy.compare("two")) { strategy = kStrategyTwo; }
+    else if(strStrategy.compare("three")) { strategy = kStrategyThree; }
+    else if(strStrategy.compare("four")) { strategy = kStrategyFour; }
+    else if(strStrategy.compare("minsum")) { strategy = kStrategyMinSum; }
+    else if(strStrategy.compare("entropy")) { strategy = kStrategyEntropy; }
+    else if(strStrategy.compare("predefined")) { strategy = kStrategyPredefined; }
+    else if(strStrategy.compare("bruteforce")) { strategy = kStrategyBruteForce; }
+    else {
+      ThrowException(Exception::TypeError(String::Concat(String::New("Wrong strategy : "), String::New(strStrategy.c_str()))));
+      return scope.Close(Undefined());
+    }
+    png_options.filter_strategies.push_back(strategy);
+  }
 
-  if(!args[4]->IsBoolean()) {
+  if(!args[3]->IsBoolean()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'auto_filter_strategy'")));
     return scope.Close(Undefined());
   }
   // Automatically choose filter strategy using less good compression
-  bool auto_filter_strategy = args[4];
+  png_options.auto_filter_strategy = args[3]->ToBoolean()->Value();;
 
-  if(!args[5]->IsBoolean()) {
+  /*if(!args[5]->IsBoolean()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'keepchunks'")));
     return scope.Close(Undefined());
-  }
+  }*/
+
   // PNG chunks to keep
   // chunks to literally copy over from the original PNG to the resulting one
-  std::vector<std::string> keepchunks = args[5];
+  Handle<Array> keepchunks = Handle<Array>::Cast(args[4]);
+  for (uint32_t i = 0; i < keepchunks->Length(); i++) {
+    String::AsciiValue s(keepchunks->Get(Integer::New(i))->ToString());
+    png_options.keepchunks.push_back(std::string(*s));
+  }
 
-  if(!args[6]->IsBoolean()) {
+  if(!args[5]->IsBoolean()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'use_zopfli'")));
     return scope.Close(Undefined());
   }
   // Use Zopfli deflate compression
-  bool use_zopfli = args[6];
+  png_options.use_zopfli = args[5]->ToBoolean()->Value();;
 
-  if(!args[7]->IsNumber()) {
+  if(!args[6]->IsNumber()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations'")));
     return scope.Close(Undefined());
   }
   // Zopfli number of iterations
-  int num_iterations = args[7];
+  png_options.num_iterations = args[6]->ToInteger()->Value();;
 
-  if(!args[8]->IsNumber()) {
+  if(!args[7]->IsNumber()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations_large'")));
     return scope.Close(Undefined());
   }
   // Zopfli number of iterations on images > 200ko
-  int num_iterations_large = args[8];
+  png_options.num_iterations_large = args[7]->ToInteger()->Value();
 
-  if(!args[9]->IsNumber()) {
+  if(!args[8]->IsNumber()) {
     ThrowException(Exception::TypeError(String::New("Wrong argument 'block_split_strategy'")));
     return scope.Close(Undefined());
   }
   // 0=none, 1=first, 2=last, 3=both
-  int block_split_strategy = args[9];
-
-
-  ZopfliPNGOptions png_options;
+  png_options.block_split_strategy = args[8]->ToInteger()->Value();
 
   std::vector<unsigned char> image;
   unsigned w, h;
@@ -85,15 +106,17 @@ Handle<Value> Compress(const Arguments& args) {
   lodepng::State inputstate;
   std::vector<unsigned char> resultpng;
 
-  lodepng::load_file(origpng, "/home/pierre/resize.png");
-  error = ZopfliPNGOptimize(origpng, png_options, true, &resultpng);
+  //lodepng::load_file(origpng, "/home/pierre/resize.png");
+  //error = ZopfliPNGOptimize(origpng, png_options, true, &resultpng);
+
+
 
   return scope.Close(Integer::New(resultpng.size() - origpng.size()));
 }
 
 void init(Handle<Object> target) {
-  target->Set(String::NewSymbol("hello"),
-      FunctionTemplate::New(Method)->GetFunction());
+  target->Set(String::NewSymbol("compress"),
+      FunctionTemplate::New(Compress)->GetFunction());
 }
 NODE_MODULE(zopflipng, init)
 
