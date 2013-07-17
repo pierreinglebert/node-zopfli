@@ -3,4 +3,5 @@ node-zopfli
 
 Bindings for zopfli compressing lib.
 
-http://travis-ci.org/pierreinglebert/node-zopfli.png
+[![Build Status](http://travis-ci.org/pierreinglebert/node-zopfli.png.png)](http://travis-ci.org/pierreinglebert/node-zopfli)
+
