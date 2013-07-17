@@ -7,5 +7,9 @@
   "repository": {
     "type": "git",
     "url": ""
+  },
+  "devDependencies": {
+    "chai": "1.7.x",
+    "mocha": "1.12.x"
   }
 }

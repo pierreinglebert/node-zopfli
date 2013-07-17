@@ -9,95 +9,167 @@
 
 using namespace v8;
 
-Handle<Value> Compress(const Arguments& args) {
-  HandleScope scope;
+bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions png_options) {
   
-  ZopfliPNGOptions png_options;
+  Handle<Value> fieldValue;
 
-  if(!args[0]->IsBoolean()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_transparent'")));
-    return scope.Close(Undefined());
-  }
   // Allow altering hidden colors of fully transparent pixels
-  png_options.lossy_transparent = args[0]->ToBoolean()->Value();
-  
-  if(!args[1]->IsBoolean()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'lossy_8bit'")));
-    return scope.Close(Undefined());
+  fieldValue = options->Get(String::New("lossy_transparent"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsBoolean()) {
+      png_options.lossy_transparent = fieldValue->ToBoolean()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'lossy_transparent'")));
+      return false;
+    }
   }
+
   // Convert 16-bit per channel images to 8-bit per channel
-  png_options.lossy_8bit = args[1]->ToBoolean()->Value();
+  fieldValue = options->Get(String::New("lossy_8bit"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsBoolean()) {
+      png_options.lossy_8bit = fieldValue->ToBoolean()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'lossy_8bit'")));
+      return false;
+    }
+  }
 
   // Filter strategies to try
   //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
   //std::vector<ZopfliPNGFilterStrategy> filter_strategies = args[3];
-  Handle<Array> filter_strategies = Handle<Array>::Cast(args[2]);
-  for (uint32_t i = 0; i < filter_strategies->Length(); i++) {
-    std::string strStrategy(*String::AsciiValue(filter_strategies->Get(Integer::New(i))->ToString()));
-    ZopfliPNGFilterStrategy strategy = kStrategyZero;
-    if(strStrategy.compare("zero")) { strategy = kStrategyZero; }
-    else if(strStrategy.compare("one")) { strategy = kStrategyOne; }
-    else if(strStrategy.compare("two")) { strategy = kStrategyTwo; }
-    else if(strStrategy.compare("three")) { strategy = kStrategyThree; }
-    else if(strStrategy.compare("four")) { strategy = kStrategyFour; }
-    else if(strStrategy.compare("minsum")) { strategy = kStrategyMinSum; }
-    else if(strStrategy.compare("entropy")) { strategy = kStrategyEntropy; }
-    else if(strStrategy.compare("predefined")) { strategy = kStrategyPredefined; }
-    else if(strStrategy.compare("bruteforce")) { strategy = kStrategyBruteForce; }
-    else {
-      ThrowException(Exception::TypeError(String::Concat(String::New("Wrong strategy : "), String::New(strStrategy.c_str()))));
-      return scope.Close(Undefined());
+  fieldValue = options->Get(String::New("filter_strategies"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsArray()) {
+      Handle<Array> filter_strategies = Handle<Array>::Cast(fieldValue);
+      for (uint32_t i = 0; i < filter_strategies->Length(); i++) {
+        std::string strStrategy(*String::AsciiValue(filter_strategies->Get(Integer::New(i))->ToString()));
+        ZopfliPNGFilterStrategy strategy = kStrategyZero;
+        if(strStrategy.compare("zero") == 0) { strategy = kStrategyZero; }
+        else if(strStrategy.compare("one") == 0) { strategy = kStrategyOne; }
+        else if(strStrategy.compare("two") == 0) { strategy = kStrategyTwo; }
+        else if(strStrategy.compare("three") == 0) { strategy = kStrategyThree; }
+        else if(strStrategy.compare("four") == 0) { strategy = kStrategyFour; }
+        else if(strStrategy.compare("minsum") == 0) { strategy = kStrategyMinSum; }
+        else if(strStrategy.compare("entropy") == 0) { strategy = kStrategyEntropy; }
+        else if(strStrategy.compare("predefined") == 0) { strategy = kStrategyPredefined; }
+        else if(strStrategy.compare("bruteforce") == 0) { strategy = kStrategyBruteForce; }
+        else {
+          ThrowException(Exception::TypeError(String::Concat(String::New("Wrong strategy : "), String::New(strStrategy.c_str()))));
+          return false;
+        }
+        png_options.filter_strategies.push_back(strategy);
+      }
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'filter_strategies'")));
+      return false;
     }
-    png_options.filter_strategies.push_back(strategy);
   }
 
-  if(!args[3]->IsBoolean()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'auto_filter_strategy'")));
-    return scope.Close(Undefined());
-  }
+  
   // Automatically choose filter strategy using less good compression
-  png_options.auto_filter_strategy = args[3]->ToBoolean()->Value();;
-
-  /*if(!args[5]->IsBoolean()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'keepchunks'")));
-    return scope.Close(Undefined());
-  }*/
+  fieldValue = options->Get(String::New("auto_filter_strategy"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsBoolean()) {
+      png_options.auto_filter_strategy = fieldValue->ToBoolean()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'auto_filter_strategy'")));
+      return false;
+    }
+  }
 
   // PNG chunks to keep
   // chunks to literally copy over from the original PNG to the resulting one
-  Handle<Array> keepchunks = Handle<Array>::Cast(args[4]);
-  for (uint32_t i = 0; i < keepchunks->Length(); i++) {
-    String::AsciiValue s(keepchunks->Get(Integer::New(i))->ToString());
-    png_options.keepchunks.push_back(std::string(*s));
+  fieldValue = options->Get(String::New("keepchunks"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsArray()) {
+      Handle<Array> keepchunks = Handle<Array>::Cast(fieldValue);
+      for (uint32_t i = 0; i < keepchunks->Length(); i++) {
+        String::AsciiValue s(keepchunks->Get(Integer::New(i))->ToString());
+        png_options.keepchunks.push_back(std::string(*s));
+      }
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'keepchunks'")));
+      return false;
+    }
   }
 
-  if(!args[5]->IsBoolean()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'use_zopfli'")));
-    return scope.Close(Undefined());
-  }
   // Use Zopfli deflate compression
-  png_options.use_zopfli = args[5]->ToBoolean()->Value();;
-
-  if(!args[6]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations'")));
-    return scope.Close(Undefined());
+  fieldValue = options->Get(String::New("use_zopfli"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsBoolean()) {
+      png_options.use_zopfli = fieldValue->ToBoolean()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'use_zopfli'")));
+      return false;
+    }
   }
+
   // Zopfli number of iterations
-  png_options.num_iterations = args[6]->ToInteger()->Value();;
-
-  if(!args[7]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'num_iterations_large'")));
-    return scope.Close(Undefined());
+  fieldValue = options->Get(String::New("num_iterations"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsInt32()) {
+      png_options.num_iterations = fieldValue->ToInt32()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'num_iterations'")));
+      return false;
+    }
   }
+
   // Zopfli number of iterations on images > 200ko
-  png_options.num_iterations_large = args[7]->ToInteger()->Value();
-
-  if(!args[8]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Wrong argument 'block_split_strategy'")));
-    return scope.Close(Undefined());
+  fieldValue = options->Get(String::New("num_iterations_large"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsInt32()) {
+      png_options.num_iterations_large = fieldValue->ToInt32()->Value();
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'num_iterations_large'")));
+      return false;
+    }
   }
-  // 0=none, 1=first, 2=last, 3=both
-  png_options.block_split_strategy = args[8]->ToInteger()->Value();
+
+  // Split chunk strategy none, first, last, both
+  fieldValue = options->Get(String::New("block_split_strategy"));
+  if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
+    if(fieldValue->IsString()) {
+      std::string strStrategy(*String::AsciiValue(fieldValue->ToString()));
+      if(strStrategy.compare("none") == 0) { png_options.block_split_strategy = 0; }
+      else if(strStrategy.compare("first") == 0) { png_options.block_split_strategy = 1; }
+      else if(strStrategy.compare("last") == 0) { png_options.block_split_strategy = 2; }
+      else if(strStrategy.compare("both") == 0) { png_options.block_split_strategy = 3; }
+      else {
+        ThrowException(Exception::TypeError(String::New("Wrong value for option 'block_split_strategy'")));
+      }
+    } else {
+      //Wrong
+      ThrowException(Exception::TypeError(String::New("Wrong type for option 'block_split_strategy'")));
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+
+Handle<Value> Compress(const Arguments& args) {
+  HandleScope scope;
+  
+  ZopfliPNGOptions png_options;
+  
+  if(args[0]->IsObject()) {
+    Handle<Object> options = Handle<Object>::Cast(args[0]);
+    if(!parseOptions(options, png_options)) {
+      return scope.Close(Undefined());
+    }
+  }
 
   std::vector<unsigned char> image;
   unsigned w, h;
@@ -119,490 +191,3 @@ void init(Handle<Object> target) {
       FunctionTemplate::New(Compress)->GetFunction());
 }
 NODE_MODULE(zopflipng, init)
-
-
-
-
-
-/*
-#include <node.h>
-#include <v8.h>
-#include <stdio.h>
-#include <stdlib.h>
- 
-using namespace v8;
- 
-Handle<Value> getRandomCoords2D(const Arguments& args) {
-    HandleScope scope;
-    
-   if (args.Length() < 2) {
-        ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
-        return scope.Close(Undefined());
-    }
- 
-    if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
-        ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-        return scope.Close(Undefined());
-    }
- 
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("x"), Number::New( 1 + (rand() % xBound->IntegerValue() )));
-    obj->Set(String::NewSymbol("y"), Number::New( 1 + (rand() % yBound->IntegerValue() )));
- 
-    return scope.Close(obj);
-}
- 
-Handle<Value> getRandomCoords3D(const Arguments& args) {
-    HandleScope scope;
- 
-    if (args.Length() < 3) {
-        ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
-        return scope.Close(Undefined());
-    }
- 
-    if (!args[0]->IsNumber() || !args[1]->IsNumber() || !args[2]->IsNumber()) {
-        ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-        return scope.Close(Undefined());
-    }
- 
-    Local<Number> xBound = args[0]->ToNumber();
-    Local<Number> yBound = args[1]->ToNumber();
-    Local<Number> zBound = args[2]->ToNumber();
- 
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("x"), Number::New( 1 + (rand() % xBound->IntegerValue() )));
-    obj->Set(String::NewSymbol("y"), Number::New( 1 + (rand() % yBound->IntegerValue() )));
-    obj->Set(String::NewSymbol("z"), Number::New( 1 + (rand() % zBound->IntegerValue() )));
-    return scope.Close(obj);
-}
- 
- 
-void init(Handle<Object> target) {
-    target->Set(String::NewSymbol("getRandomCoords3D"),
-        FunctionTemplate::New(getRandomCoords3D)->GetFunction());
- 
-    target->Set(String::NewSymbol("getRandomCoords2D"),
-        FunctionTemplate::New(getRandomCoords2D)->GetFunction());
-}
-NODE_MODULE(randomcoords, init)
-
-*/
-
-
-
-
-
-
-
-
-
-/*
-
-// Copyright 2013 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Author: lode.vandevenne@gmail.com (Lode Vandevenne)
-// Author: jyrki.alakuijala@gmail.com (Jyrki Alakuijala)
-
-// Command line tool to recompress and optimize PNG images, using zopflipng_lib.
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "lodepng/lodepng.h"
-#include "zopflipng_lib.h"
-
-// Returns directory path (including last slash) in dir, filename without
-// extension in file, extension (including the dot) in ext
-void GetFileNameParts(const std::string& filename,
-    std::string* dir, std::string* file, std::string* ext) {
-  size_t npos = (size_t)(-1);
-  size_t slashpos = filename.find_last_of("/\\");
-  std::string nodir;
-  if (slashpos == npos) {
-    *dir = "";
-    nodir = filename;
-  } else {
-    *dir = filename.substr(0, slashpos + 1);
-    nodir = filename.substr(slashpos + 1);
-  }
-  size_t dotpos = nodir.find_last_of('.');
-  if (dotpos == (size_t)(-1)) {
-    *file = nodir;
-    *ext = "";
-  } else {
-    *file = nodir.substr(0, dotpos);
-    *ext = nodir.substr(dotpos);
-  }
-}
-
-// Returns the size of the file
-size_t GetFileSize(const std::string& filename) {
-  size_t size;
-  FILE* file = fopen(filename.c_str(), "rb");
-  if (!file) return 0;
-  fseek(file , 0 , SEEK_END);
-  size = static_cast<size_t>(ftell(file));
-  fclose(file);
-  return size;
-}
-
-void ShowHelp() {
-  printf("ZopfliPNG, a Portable Network Graphics (PNG) image optimizer.\n"
-         "\n"
-         "Usage: zopflipng [options]... infile.png outfile.png\n"
-         "       zopflipng [options]... --prefix=[fileprefix] [files.png]...\n"
-         "\n"
-         "If the output file exists, it is considered a result from a"
-         " previous run and not overwritten if its filesize is smaller.\n"
-         "\n"
-         "Options:\n"
-         "-m: compress more: use more iterations (depending on file size) and"
-         " use block split strategy 3\n"
-         "--prefix=[fileprefix]: Adds a prefix to output filenames. May also"
-         " contain a directory path. When using a prefix, multiple input files"
-         " can be given and the output filenames are generated with the"
-         " prefix\n"
-         " If --prefix is specified without value, 'zopfli_' is used.\n"
-         " If input file names contain the prefix, they are not processed but"
-         " considered as output from previous runs. This is handy when using"
-         " *.png wildcard expansion with multiple runs.\n"
-         "-y: do not ask about overwriting files.\n"
-         "--lossy_transparent: remove colors behind alpha channel 0. No visual"
-         " difference, removes hidden information.\n"
-         "--lossy_8bit: convert 16-bit per channel image to 8-bit per"
-         " channel.\n"
-         "-d: dry run: don't save any files, just see the console output"
-         " (e.g. for benchmarking)\n"
-         "--always_zopflify: always output the image encoded by Zopfli, even if"
-         " it's bigger than the original, for benchmarking the algorithm. Not"
-         " good for real optimization.\n"
-         "-q: use quick, but not very good, compression"
-         " (e.g. for only trying the PNG filter and color types)\n"
-         "--iterations=[number]: number of iterations, more iterations makes it"
-         " slower but provides slightly better compression. Default: 15 for"
-         " small files, 5 for large files.\n"
-         "--splitting=[0-3]: block split strategy:"
-         " 0=none, 1=first, 2=last, 3=try both and take the best\n"
-         "--filters=[types]: filter strategies to try:\n"
-         " 0-4: give all scanlines PNG filter type 0-4\n"
-         " m: minimum sum\n"
-         " e: entropy\n"
-         " p: predefined (keep from input, this likely overlaps another"
-         " strategy)\n"
-         " b: brute force (experimental)\n"
-         " By default, if this argument is not given, one that is most likely"
-         " the best for this image is chosen by trying faster compression with"
-         " each type.\n"
-         " If this argument is used, all given filter types"
-         " are tried with slow compression and the best result retained. A good"
-         " set of filters to try is --filters=0me.\n"
-         "--keepchunks=nAME,nAME,...: keep metadata chunks with these names"
-         " that would normally be removed, e.g. tEXt,zTXt,iTXt,gAMA, ... \n"
-         " Due to adding extra data, this increases the result size. By default"
-         " ZopfliPNG only keeps the following chunks because they are"
-         " essential: IHDR, PLTE, tRNS, IDAT and IEND.\n"
-         "\n"
-         "Usage examples:\n"
-         "Optimize a file and overwrite if smaller: zopflipng infile.png"
-         " outfile.png\n"
-         "Compress more: zopflipng -m infile.png outfile.png\n"
-         "Optimize multiple files: zopflipng --prefix a.png b.png c.png\n"
-         "Compress really good and trying all filter strategies: zopflipng"
-         " --iterations=500 --splitting=3 --filters=01234mepb"
-         " --lossy_8bit --lossy_transparent infile.png outfile.png\n");
-}
-
-void PrintSize(const char* label, size_t size) {
-  printf("%s: %d (%dK)\n", label, (int) size, (int) size / 1024);
-}
-
-void PrintResultSize(const char* label, size_t oldsize, size_t newsize) {
-  printf("%s: %d (%dK). Percentage of original: %.3f%%\n",
-         label, (int) newsize, (int) newsize / 1024, newsize * 100.0 / oldsize);
-}
-
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    ShowHelp();
-    return 0;
-  }
-
-  ZopfliPNGOptions png_options;
-
-  // cmd line options
-  bool always_zopflify = false;  // overwrite file even if we have bigger result
-  bool yes = false;  // do not ask to overwrite files
-  bool dryrun = false;  // never save anything
-
-  std::string user_out_filename;  // output filename if no prefix is used
-  bool use_prefix = false;
-  std::string prefix = "zopfli_";  // prefix for output filenames
-
-  std::vector<std::string> files;
-  std::vector<char> options;
-  for (int i = 1; i < argc; i++) {
-    std::string arg = argv[i];
-    if (arg[0] == '-' && arg.size() > 1 && arg[1] != '-') {
-      for (size_t pos = 1; pos < arg.size(); pos++) {
-        char c = arg[pos];
-        if (c == 'y') {
-          yes = true;
-        } else if (c == 'd') {
-          dryrun = true;
-        } else if (c == 'm') {
-          png_options.num_iterations *= 4;
-          png_options.num_iterations_large *= 4;
-          png_options.block_split_strategy = 3;
-        } else if (c == 'q') {
-          png_options.use_zopfli = false;
-        } else if (c == 'h') {
-          ShowHelp();
-          return 0;
-        } else {
-          printf("Unknown flag: %c\n", c);
-          return 0;
-        }
-      }
-    } else if (arg[0] == '-' && arg.size() > 1 && arg[1] == '-') {
-      size_t eq = arg.find('=');
-      std::string name = arg.substr(0, eq);
-      std::string value = eq >= arg.size() - 1 ? "" : arg.substr(eq + 1);
-      int num = atoi(value.c_str());
-      if (name == "--always_zopflify") {
-        always_zopflify = true;
-      } else if (name == "--lossy_transparent") {
-        png_options.lossy_transparent = true;
-      } else if (name == "--lossy_8bit") {
-        png_options.lossy_8bit = true;
-      } else if (name == "--iterations") {
-        if (num < 1) num = 1;
-        png_options.num_iterations = num;
-        png_options.num_iterations_large = num;
-      } else if (name == "--splitting") {
-        if (num < 0 || num > 3) num = 1;
-        png_options.block_split_strategy = num;
-      } else if (name == "--filters") {
-        for (size_t j = 0; j < value.size(); j++) {
-          ZopfliPNGFilterStrategy strategy = kStrategyZero;
-          char f = value[j];
-          switch (f) {
-            case '0': strategy = kStrategyZero; break;
-            case '1': strategy = kStrategyOne; break;
-            case '2': strategy = kStrategyTwo; break;
-            case '3': strategy = kStrategyThree; break;
-            case '4': strategy = kStrategyFour; break;
-            case 'm': strategy = kStrategyMinSum; break;
-            case 'e': strategy = kStrategyEntropy; break;
-            case 'p': strategy = kStrategyPredefined; break;
-            case 'b': strategy = kStrategyBruteForce; break;
-            default:
-              printf("Unknown filter strategy: %c\n", f);
-              return 1;
-          }
-          png_options.filter_strategies.push_back(strategy);
-          // Enable auto filter strategy only if no user-specified filter is
-          // given.
-          png_options.auto_filter_strategy = false;
-        }
-      } else if (name == "--keepchunks") {
-        bool correct = true;
-        if ((value.size() + 1) % 5 != 0) correct = false;
-        for (size_t i = 0; i + 4 <= value.size() && correct; i += 5) {
-          png_options.keepchunks.push_back(value.substr(i, 4));
-          if (i > 4 && value[i - 1] != ',') correct = false;
-        }
-        if (!correct) {
-          printf("Error: keepchunks format must be like for example:\n"
-                 " --keepchunks=gAMA,cHRM,sRGB,iCCP\n");
-          return 0;
-        }
-      } else if (name == "--prefix") {
-        use_prefix = true;
-        if (!value.empty()) prefix = value;
-      } else if (name == "--help") {
-        ShowHelp();
-        return 0;
-      } else {
-        printf("Unknown flag: %s\n", name.c_str());
-        return 0;
-      }
-    } else {
-      files.push_back(argv[i]);
-    }
-  }
-
-  if (!use_prefix) {
-    if (files.size() == 2) {
-      // The second filename is the output instead of an input if no prefix is
-      // given.
-      user_out_filename = files[1];
-      files.resize(1);
-    } else {
-      printf("Please provide one input and output filename\n\n");
-      ShowHelp();
-      return 0;
-    }
-  }
-
-  size_t total_in_size = 0;
-  // Total output size, taking input size if the input file was smaller
-  size_t total_out_size = 0;
-  // Total output size that zopfli produced, even if input was smaller, for
-  // benchmark information
-  size_t total_out_size_zopfli = 0;
-  size_t total_errors = 0;
-  size_t total_files = 0;
-  size_t total_files_smaller = 0;
-  size_t total_files_saved = 0;
-  size_t total_files_equal = 0;
-
-  for (size_t i = 0; i < files.size(); i++) {
-    if (use_prefix && files.size() > 1) {
-      std::string dir, file, ext;
-      GetFileNameParts(files[i], &dir, &file, &ext);
-      // avoid doing filenames which were already output by this so that you
-      // don't get zopfli_zopfli_zopfli_... files after multiple runs.
-      if (file.find(prefix) == 0) continue;
-    }
-
-    total_files++;
-
-    printf("Optimizing %s\n", files[i].c_str());
-    std::vector<unsigned char> image;
-    unsigned w, h;
-    std::vector<unsigned char> origpng;
-    unsigned error;
-    lodepng::State inputstate;
-    std::vector<unsigned char> resultpng;
-
-    lodepng::load_file(origpng, files[i]);
-    error = ZopfliPNGOptimize(origpng, png_options, true, &resultpng);
-
-    if (error) {
-      printf("Decoding error %i: %s\n", error, lodepng_error_text(error));
-    }
-
-    // Verify result, check that the result causes no decoding errors
-    if (!error) {
-      error = lodepng::decode(image, w, h, inputstate, resultpng);
-      if (error) printf("Error: verification of result failed.\n");
-    }
-
-    if (error) {
-      printf("There was an error\n");
-      total_errors++;
-    } else {
-      size_t origsize = GetFileSize(files[i]);
-      size_t resultsize = resultpng.size();
-
-      if (resultsize < origsize) {
-        printf("Result is smaller\n");
-      } else if (resultsize == origsize) {
-        printf("Result has exact same size\n");
-      } else {
-        printf(always_zopflify
-            ? "Original was smaller\n"
-            : "Preserving original PNG since it was smaller\n");
-      }
-      PrintSize("Input size", origsize);
-      PrintResultSize("Result size", origsize, resultsize);
-
-      std::string out_filename = user_out_filename;
-      if (use_prefix) {
-        std::string dir, file, ext;
-        GetFileNameParts(files[i], &dir, &file, &ext);
-        out_filename = dir + prefix + file + ext;
-      }
-      bool different_output_name = out_filename != files[i];
-
-      total_in_size += origsize;
-      total_out_size_zopfli += resultpng.size();
-      if (resultpng.size() < origsize) total_files_smaller++;
-      else if (resultpng.size() == origsize) total_files_equal++;
-
-      if (!always_zopflify && resultpng.size() > origsize) {
-        // Set output file to input since input was smaller.
-        resultpng = origpng;
-      }
-
-      size_t origoutfilesize = GetFileSize(out_filename);
-      bool already_exists = true;
-      if (origoutfilesize == 0) already_exists = false;
-
-      // When using a prefix, and the output file already exist, assume it's
-      // from a previous run. If that file is smaller, it may represent a
-      // previous run with different parameters that gave a smaller PNG image.
-      // In that case, do not overwrite it. This behaviour can be removed by
-      // adding the always_zopflify flag.
-      bool keep_earlier_output_file = already_exists &&
-          resultpng.size() >= origoutfilesize && !always_zopflify && use_prefix;
-
-      if (keep_earlier_output_file) {
-        // An output file from a previous run is kept, add that files' size
-        // to the output size statistics.
-        total_out_size += origoutfilesize;
-        if (different_output_name) {
-          printf(resultpng.size() == origoutfilesize
-              ? "File not written because a previous run was as good.\n"
-              : "File not written because a previous run was better.\n");
-        }
-      } else {
-        bool confirmed = true;
-        if (!yes && !dryrun && already_exists) {
-          printf("File %s exists, overwrite? (y/N) ", out_filename.c_str());
-          char answer = 0;
-          // Read the first character, the others and enter with getchar.
-          while (int input = getchar()) {
-            if (input == '\n' || input == EOF) break;
-            else if (!answer) answer = input;
-          }
-          confirmed = answer == 'y' || answer == 'Y';
-        }
-        if (confirmed) {
-          if (!dryrun) {
-            lodepng::save_file(resultpng, out_filename);
-            total_files_saved++;
-          }
-          total_out_size += resultpng.size();
-        } else {
-          // An output file from a previous run is kept, add that files' size
-          // to the output size statistics.
-          total_out_size += origoutfilesize;
-        }
-      }
-    }
-    printf("\n");
-  }
-
-  if (total_files > 1) {
-    printf("Summary for all files:\n");
-    printf("Files tried: %d\n", (int) total_files);
-    printf("Files smaller: %d\n", (int) total_files_smaller);
-    if (total_files_equal) {
-      printf("Files equal: %d\n", (int) total_files_equal);
-    }
-    printf("Files saved: %d\n", (int) total_files_saved);
-    if (total_errors) printf("Errors: %d\n", (int) total_errors);
-    PrintSize("Total input size", total_in_size);
-    PrintResultSize("Total output size", total_in_size, total_out_size);
-    PrintResultSize("Benchmark result size",
-                    total_in_size, total_out_size_zopfli);
-  }
-
-  if (dryrun) printf("No files were written because dry run was specified\n");
-
-  return total_errors;
-}
-*/
