@@ -162,9 +162,15 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions png_options) {
 Handle<Value> Compress(const Arguments& args) {
   HandleScope scope;
   
+  if(args.Length() < 1 || !args[0]->IsString()) {
+    ThrowException(Exception::TypeError(String::New("First argument must be a string")));
+    return scope.Close(Undefined());
+  }
+  std::string imageName(*String::AsciiValue(args[0]->ToString()));
+
   ZopfliPNGOptions png_options;
   
-  if(args[0]->IsObject()) {
+  if(args.Length() >= 2 && args[1]->IsObject()) {
     Handle<Object> options = Handle<Object>::Cast(args[0]);
     if(!parseOptions(options, png_options)) {
       return scope.Close(Undefined());
@@ -178,12 +184,21 @@ Handle<Value> Compress(const Arguments& args) {
   lodepng::State inputstate;
   std::vector<unsigned char> resultpng;
 
-  //lodepng::load_file(origpng, "/home/pierre/resize.png");
-  //error = ZopfliPNGOptimize(origpng, png_options, true, &resultpng);
+  lodepng::load_file(origpng, "/home/pierre/resize.png");
 
+  error = ZopfliPNGOptimize(origpng, png_options, true, &resultpng);
 
+  if (error) {
+    printf("Decoding error %i: %s\n", error, lodepng_error_text(error));
+  }
+  // Verify result, check that the result causes no decoding errors
+  if (!error) {
+    error = lodepng::decode(image, w, h, inputstate, resultpng);
+    if (error) printf("Error: verification of result failed.\n");
+  }
+  //lodepng::save_file(resultpng, out_filename);
 
-  return scope.Close(Integer::New(resultpng.size() - origpng.size()));
+  return scope.Close(Integer::New(error));
 }
 
 void init(Handle<Object> target) {
