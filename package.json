@@ -8,6 +8,9 @@
     "type": "git",
     "url": ""
   },
+  "dependencies": {
+    "bindings": "*"
+  },
   "devDependencies": {
     "chai": "1.7.x",
     "mocha": "1.12.x"
