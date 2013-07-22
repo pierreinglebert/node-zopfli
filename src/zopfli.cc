@@ -156,7 +156,8 @@ Handle<Value> Deflate(const Arguments& args) {
     ZopfliCompress(&zopfli_options, format, 
       inbufferdata, inbuffersize,
       &out, &outsize);
-      Local<Buffer> buf = Buffer::New((char*)out, outsize);
+    size_t i=0;
+    Local<Buffer> buf = Buffer::New((char*)out, outsize);
     Local<Value> argv[] = {
         Local<Value>::New(Null()),
         Local<Value>::New(buf->handle_)
@@ -165,9 +166,109 @@ Handle<Value> Deflate(const Arguments& args) {
   }
   return scope.Close(Undefined());
 }
+/*
+class Adler32 {
+
+private:
+  static unsigned int size = 0;
+  static unsigned char buffer[5552];
+  static unsigned int s1 = 1;
+  static unsigned int s2 = 1 >> 16;
+
+public:
+  static update(data, size) {
+    //If new data isn't long enough, just append it to buffer
+    if(Adler32.size + size < 5552) {
+      //Push data to buffer
+      memcpy(Adler32.buffer + Adler32.size, data, size);
+    } else {
+      //Compute what we can
+      unsigned int total = 0;
+      for(unsigned int i=0; i < Adler32.size; i++) {
+        s1 += Adler32.buffer[i];
+        s2 += s1;
+        total++;
+      }
+      unsigned int i=0;
+      while(i<size) {
+
+      }
+
+    }
+  }
+};
+
+updateAdler32(data) {
+  
+  //On mange les data pour arriver à 5552 bytes
+  buffer += data
+  //computes adler on buffer
+  
+  int size = data.size();
+  for(int i=0;i<size;i++) {
+    s1 += data[i];
+    s2 += s1;
+  }
+  s1 %= 65521;
+  s2 %= 65521;
+}*/
+
+
+unsigned updateAdler32(unsigned int adler, const unsigned char* data, size_t size)
+{
+  unsigned sums_overflow = 5550;
+  unsigned s1 = adler;
+  unsigned s2 = 1 >> 16;
+
+  while (size > 0) {
+    size_t amount = size > sums_overflow ? sums_overflow : size;
+    size -= amount;
+    while (amount > 0) {
+      s1 += (*data++);
+      s2 += s1;
+      amount--;
+    }
+    s1 %= 65521;
+    s2 %= 65521;
+  }
+  return (s2 << 16) | s1;
+}
+
+Handle<Value> Adler32(const Arguments& args) {
+  HandleScope scope;
+
+  if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
+    ThrowException(Exception::TypeError(String::New("adler must be an unsigned integer")));
+    return scope.Close(Undefined());
+  }
+  unsigned int adler = args[0]->ToUint32()->Value();
+
+  if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
+    ThrowException(Exception::TypeError(String::New("data must be a buffer")));
+  }
+  Local<Value> inbuffer = args[1];
+  size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
+  const unsigned char * data = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
+  adler = updateAdler32(adler, data, inbuffersize);
+  return scope.Close(Uint32::New(adler));
+}
+
+Handle<Value> TestUint(const Arguments& args) {
+  HandleScope scope;
+  if(args.Length() >= 1 && !args[0]->IsUint32()) {
+    ThrowException(Exception::TypeError(String::New("Not an unsigned integer")));
+    return scope.Close(Undefined());
+  }
+  unsigned int myint = args[0]->ToUint32()->Uint32Value();
+  return scope.Close(Uint32::New(myint)); 
+}
 
 void init(Handle<Object> target) {
   target->Set(String::NewSymbol("deflate"),
       FunctionTemplate::New(Deflate)->GetFunction());
+  target->Set(String::NewSymbol("adler32"),
+      FunctionTemplate::New(Adler32)->GetFunction());
+  target->Set(String::NewSymbol("testuint"),
+      FunctionTemplate::New(TestUint)->GetFunction());
 }
 NODE_MODULE(zopfli, init)
