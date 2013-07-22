@@ -2,11 +2,8 @@ var chai = require("chai");
 var mocha = require("mocha");
 var zopflipng = require("../build/Release/zopflipng");
 
-
 var expect = chai.expect;
 var assert = chai.assert;
-
-
 
 describe('Zopflipng',function() {
   describe('Options Verification', function() {
@@ -86,7 +83,5 @@ describe('Zopflipng',function() {
       fn = function() { zopflipng.compress({block_split_strategy: "string"}); };
       expect(fn).to.throw(TypeError, /Wrong value/);
     });
-    
-
   });
 });

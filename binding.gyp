@@ -1,7 +1,34 @@
 {
+  'target_defaults': {
+    'default_configuration': 'Release',
+    'configurations': {
+      'Debug': {
+        'cflags': ['-g3', '-O0'],
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'GenerateDebugInformation': 'true',
+            'LinkIncremental': 2
+          }
+        }
+      },
+      'Release': {
+        'cflags': ['-O2', '-W', '-Wall', '-Wextra', '-ansi', '-pedantic'],
+        'msvs_settings': {
+          'VCCLCompilerTool': {
+            'Optimization': 3, # -O3
+            'FavorSizeOrSpeed': 1, # favor speed
+          },
+          'VCLinkerTool': {
+            'OptimizeReferences': 2, # /OPT:REF
+          }
+        }
+      },
+    },
+  },
   "targets": [
     {
       "target_name": "zopfli",
+      'lflags': ['-lm'],
       "include_dirs": [
         "zopfli/src/zopfli",
         "zopfli/src/zopflipng"
