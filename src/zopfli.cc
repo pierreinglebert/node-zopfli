@@ -241,8 +241,9 @@ Handle<Value> Adler32(const Arguments& args) {
     ThrowException(Exception::TypeError(String::New("adler must be an unsigned integer")));
     return scope.Close(Undefined());
   }
-  unsigned int adler = args[0]->ToUint32()->Value();
 
+  unsigned int adler = args[0]->ToUint32()->Value();
+  
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
     ThrowException(Exception::TypeError(String::New("data must be a buffer")));
   }
@@ -253,22 +254,10 @@ Handle<Value> Adler32(const Arguments& args) {
   return scope.Close(Uint32::New(adler));
 }
 
-Handle<Value> TestUint(const Arguments& args) {
-  HandleScope scope;
-  if(args.Length() >= 1 && !args[0]->IsUint32()) {
-    ThrowException(Exception::TypeError(String::New("Not an unsigned integer")));
-    return scope.Close(Undefined());
-  }
-  unsigned int myint = args[0]->ToUint32()->Uint32Value();
-  return scope.Close(Uint32::New(myint)); 
-}
-
 void init(Handle<Object> target) {
   target->Set(String::NewSymbol("deflate"),
       FunctionTemplate::New(Deflate)->GetFunction());
   target->Set(String::NewSymbol("adler32"),
       FunctionTemplate::New(Adler32)->GetFunction());
-  target->Set(String::NewSymbol("testuint"),
-      FunctionTemplate::New(TestUint)->GetFunction());
 }
 NODE_MODULE(zopfli, init)

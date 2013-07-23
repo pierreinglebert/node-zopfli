@@ -9,7 +9,8 @@
     "url": ""
   },
   "dependencies": {
-    "bindings": "*"
+    "bindings": "*",
+    "buffer-crc32": "~0.2.1"
   },
   "devDependencies": {
     "chai": "1.7.x",

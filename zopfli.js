@@ -3,19 +3,16 @@ var fs = require('fs');
 var zlib = require('zlib');
 
 var zopfli = require('bindings')('zopfli.node');
-
+var crc32 = require('buffer-crc32');
 var util = require('util');
 var Transform = require('stream').Transform;
 
 module.exports = Zopfli;
 
-function Zopfli(){
-  
-}
-
 function Zopfli(opts) {
   this.first = true;
-  this.adler = 2583218086;
+  this.adler = 0x01;
+  this.crc = null;
   this.options = opts || {};
   this.options.format = this.options.format || "deflate";
   Transform.prototype.constructor.apply(this, arguments);
@@ -28,7 +25,9 @@ var liner = new Zopfli();
 
 Zopfli.prototype._transform = function (chunk, encoding, done) {
   if(this.first) {
+    this.insize = 0;
     //Write output header for zlib
+    var startBuffer = Buffer(0);
     if(this.options.format == "zlib") {
       //Pre
       var cmf = 120;  /* CM 8, CINFO 7. See zlib spec.*/
@@ -37,17 +36,32 @@ Zopfli.prototype._transform = function (chunk, encoding, done) {
       var cmfflg = 256 * cmf + fdict * 32 + flevel * 64;
       var fcheck = 31 - cmfflg % 31;
       cmfflg += fcheck;
-      var startBuffer = new Buffer(8);
-      startBuffer.writeUInt8(parseInt(cmfflg / 256), 0);
-      startBuffer.writeUInt8(cmfflg % 256, 4);
-      this.push(startBuffer);
+      startBuffer = new Buffer(2);
+      startBuffer.writeUInt8(parseInt(cmfflg / 256, 10), 0);
+      startBuffer.writeUInt8(parseInt(cmfflg % 256, 10), 1);
+    } else if(this.options.format == "gzip") {
+      startBuffer = new Buffer(10);
+      startBuffer.writeUInt8(31, 0);  /* ID1 */
+      startBuffer.writeUInt8(139, 1); /* ID2 */
+      startBuffer.writeUInt8(8, 2);   /* CM */
+      startBuffer.writeUInt8(0, 3);   /* FLG */
+      startBuffer.writeUInt8(0, 4);  /* MTIME */
+      startBuffer.writeUInt8(2, 8);   /* XFL, 2 indicates best compression. */
+      startBuffer.writeUInt8(3, 9);   /* OS follows Unix conventions. */
     }
+    this.push(startBuffer);
     this.first = false;
   }
-  this.adler = zopfli.adler32(this.adler, chunk);
-  console.log('-> ' + this.adler);
+
+  //Update crc or adler
+  if(this.options.format == "zlib") {
+    this.adler = zopfli.adler32(this.adler, chunk);
+  } else if(this.options.format == "gzip") {
+    this.crc = crc32(chunk, this.crc);
+  }
+  this.insize += chunk.length;
   var transform = this;
-  zopfli.deflate(new Buffer(chunk), "deflate", {numiterations: 15, verbose:true, verbose_more:true}, function(err, outbuf) {
+  zopfli.deflate(new Buffer(chunk), "deflate", {numiterations: 15, verbose: false}, function(err, outbuf) {
     if (err) {
       done(err);
     } else {
@@ -58,47 +72,52 @@ Zopfli.prototype._transform = function (chunk, encoding, done) {
       });*/
     }
   });
-}
- 
+};
+
 Zopfli.prototype._flush = function (done) {
+  var endBuffer = new Buffer(0);
   if(this.options.format == "zlib") {
-    var endBuffer = new Buffer(4);
-    console.log(this.adler);
+    endBuffer = new Buffer(4);
     endBuffer.writeUInt8(((this.adler >> 24) % 256), 0);
     endBuffer.writeUInt8(((this.adler >> 16) % 256), 1);
     endBuffer.writeUInt8(((this.adler >> 8) % 256), 2);
     endBuffer.writeUInt8((this.adler % 256), 3);
-    this.push(endBuffer);
+  } else if(this.options.format == "gzip") {
+    endBuffer = new Buffer(8);
+    /* CRC */
+    var crcvalue = this.crc.readUInt32BE(0);
+    endBuffer.writeUInt8(parseInt(crcvalue % 256, 10), 0); //Bit operations works only on unsigned int, v8 internally changes to signed...
+    endBuffer.writeUInt8(parseInt(crcvalue / 256, 10) % 256, 1);
+    endBuffer.writeUInt8(parseInt(crcvalue / 65536, 10) % 256, 2);
+    endBuffer.writeUInt8(parseInt(crcvalue / 16777216, 10) % 256, 3);
+    //this.crc.copy(endBuffer);
+    /* ISIZE */
+    endBuffer.writeUInt8(parseInt(this.insize % 256, 10), 4);
+    endBuffer.writeUInt8((this.insize >> 8) % 256, 5);
+    endBuffer.writeUInt8((this.insize >> 16) % 256, 6);
+    endBuffer.writeUInt8((this.insize >> 24) % 256, 7);
   }
-  done()
-}
-var myint = 4294967295;
-myint = zopfli.testuint(myint);
-myint = zopfli.testuint(myint);
+  this.push(endBuffer);
+  done();
+};
 
-/*
 var source = fs.createReadStream('/home/pierre/testing');
+var destStream = fs.createWriteStream('/home/pierre/testing.gz');
+var parser = new Zopfli({format: "gzip"});
 
-var destStream = fs.createWriteStream('/home/pierre/testing.out');
-
-var parser = new Zopfli({format: "zlib"});
-
-//source.pipe(parser).pipe(destStream);
+source.pipe(parser).pipe(destStream);
 
 fs.readFile('/home/pierre/testing.out', function (err, data) {
   if (err) throw err;
   zlib.inflate(data, function(err, out) {
     if (err) throw err;
-    console.log(out);
+    console.log(out.toString());
   });
-});*/
+});
 /*
 var defsource = fs.createReadStream('/home/pierre/testing.out');
-
 var defdestStream = fs.createWriteStream('/home/pierre/testing.inf');
-
 var inf = new zlib.createInflate().on('error', function(err) { console.log(err); });
-
 defsource.pipe(inf).pipe(defdestStream);
 */
 
