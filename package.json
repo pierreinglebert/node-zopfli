@@ -2,11 +2,11 @@
   "author": "Pierre Inglebert",
   "name": "node-zopfli",
   "description": "Compress files with zopfli algorithm",
-  "version": "0.1.0",
-  "homepage": "",
+  "version": "0.1.1",
+  "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/pierreinglebert/node-zopfli.git"
   },
   "dependencies": {
     "commander": "~2.0.0",
