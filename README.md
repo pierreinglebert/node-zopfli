@@ -8,13 +8,25 @@ Bindings for zopfli compressing lib.
 
 # USAGE
 
-With Streams : 
-    
+## Binary
+    zopfli file.txt
+
+## Api
+### Stream (async):
     fs.createReadStream('file.js')
-      .pipe(new zopfli.createGzip())
+      .pipe(new zopfli.createGzip(options))
       .pipe(fs.createWriteStream('file.js.gz'));
 
-With buffer :
-
+### Buffer (sync):
 	var input = new Buffer('i want to be compressed');
-    var compressed = zopfli.deflate(input);
+    var compressed = zopfli.deflate(input, options);
+
+### Options 
+    {
+      verbose: false,
+      verbose_more: false,
+      numiterations: 15,
+      blocksplitting: true,
+      blocksplittinglast: false,
+      blocksplittingmax: 15
+    }
