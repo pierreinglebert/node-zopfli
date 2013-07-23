@@ -106,14 +106,12 @@ Handle<Value> Compress(const Arguments& args) {
 
   //Callback function
   if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
-    ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
-    return scope.Close(Undefined());
+    return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
   }
   Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
 
   if(args.Length() < 1 || !Buffer::HasInstance(args[0])) {
     error = Exception::TypeError(String::New("First argument must be a buffer"));
-    //return scope.Close(Undefined());
   }
   Local<Value> inbuffer = args[0];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
@@ -191,14 +189,13 @@ Handle<Value> Adler32(const Arguments& args) {
   HandleScope scope;
 
   if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
-    ThrowException(Exception::TypeError(String::New("adler must be an unsigned integer")));
-    return scope.Close(Undefined());
+    return ThrowException(Exception::TypeError(String::New("adler must be an unsigned integer")));
   }
 
-  unsigned int adler = args[0]->ToUint32()->Value();
+  unsigned int adler = args[0]->Uint32Value();
   
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
-    ThrowException(Exception::TypeError(String::New("data must be a buffer")));
+    return ThrowException(Exception::TypeError(String::New("data must be a buffer")));
   }
   Local<Value> inbuffer = args[1];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
