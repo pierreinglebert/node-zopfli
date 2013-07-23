@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var fs = require('fs');
+var async = require('async');
+var zopfli = require('../zopfli');
+
+program
+  .version('0.0.1')
+  .usage('[options] file destfile')
+  .option('--deflate', 'raw deflate')
+  .option('--zlib', 'zlib container')
+  .option('--gzip', 'Gzip file')
+  .option('-e --ext', 'file extension')
+  .option('-i, --iterations', 'Number of iterations')
+  .option('-v, --verbose', 'Verbose')
+  .parse(process.argv);
+
+var options = {
+  verbose: false,
+  verbose_more: false,
+  numiterations: 15,
+  blocksplitting: true,
+  blocksplittinglast: false,
+  blocksplittingmax: 15
+};
+
+if(program.iterations) options.numiterations = program.iterations;
+if(program.verbose) options.verbose = program.verbose;
+
+var method = zopfli.createGzip, extension = 'gz';
+if (program.deflate) method = zopfli.createDeflate, extension = 'zlib';
+if (program.zlib) method = zopfli.createZlib, extension = 'deflate';
+if (program.ext) extension = program.ext;
+
+async.eachSeries(
+  program.args,
+  function(item, next) {
+    fs.createReadStream(item)
+      .pipe(new method(options))
+      .pipe(fs.createWriteStream(item + '.' + extension));
+  },
+  function(err) {
+    if(err) throw err;
+  }
+);

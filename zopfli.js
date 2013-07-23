@@ -11,3 +11,15 @@ exports.createZlib = function(options) {
 exports.createDeflate = function(options) {
   return new Zopfli('deflate', options);
 };
+
+exports.gzip = function(buffer, options, callback) {
+  Zopfli.gzip(buffer, options, callback);
+};
+
+exports.zlib = function(buffer, options, callback) {
+  Zopfli.zlib(buffer, options, callback);
+};
+
+exports.deflate = function(buffer, options, callback) {
+  zopfli.deflate(buffer, options, callback);
+};
