@@ -1,10 +1,13 @@
 var chai = require("chai");
 var mocha = require("mocha");
-var zopflipng = require("../build/Release/zopflipng");
+var fs = require("fs");
+
+var zopfli = require('../zopfli');
 
 var expect = chai.expect;
 var assert = chai.assert;
-
+/*
+var zopflipng = require("../build/Release/zopflipng");
 describe('Zopflipng',function() {
   describe('Options Verification', function() {
     it('should say that lossy_transparent is wrong',function(){
@@ -83,5 +86,28 @@ describe('Zopflipng',function() {
       fn = function() { zopflipng.compress({block_split_strategy: "string"}); };
       expect(fn).to.throw(TypeError, /Wrong value/);
     });
+  });
+});
+*/
+
+describe('Zopfli',function() {
+  before(function(done) {
+    fs.mkdirSync('tmp');
+    done();
+  });
+  describe('deflate',function() {
+
+  });
+  describe('zlib',function() {
+    fs.createReadStream('file.js')
+      .pipe(new zopfli.createZlib())
+      .pipe(fs.createWriteStream('tmp/file.js.zlib'));
+  });
+  describe('gzip',function() {
+
+  });
+  after(function(done) {
+    fs.unlinkSync('tmp');
+    done();
   });
 });

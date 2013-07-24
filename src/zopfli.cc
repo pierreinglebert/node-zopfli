@@ -201,7 +201,7 @@ Handle<Value> Adler32(const Arguments& args) {
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
   const unsigned char * data = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
   adler = updateAdler32(adler, data, inbuffersize);
-  return scope.Close(Uint32::New(adler));
+  return scope.Close(Integer::NewFromUnsigned(adler));
 }
 
 void init(Handle<Object> target) {
