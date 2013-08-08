@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+var fs = require('fs');
+var async = require('async');
+var zopflipng = require("../build/Release/zopflipng");
+
+program
+  .version('1.0.0')
+  .usage('[options] file destfile')
+  .option('--lossy_transparent', 'Allow altering hidden colors of fully transparent pixels')
+  .option('--lossy', 'Convert 16-bit per channel images to 8-bit per channel')
+  .option('--filter_strategies', 'Filter strategies to try : "zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute", if none, it will be guessed automatically')
+  .option('--keepchunks', 'Chunks to keep')
+  .option('--iterations', 'Number of iterations for small images < 200ko')
+  .option('--iterations_large', 'Number of iterations for large images > 200ko')
+  .parse(process.argv);
+
+var options = {
+  lossy_transparent: false,
+  lossy_8bit: false,
+  filter_strategies: [],
+  auto_filter_strategy: true,
+  keepchunks:[],
+  use_zopfli: true,
+  num_iterations: 15,
+  num_iterations_large: 5,
+  block_split_strategy: "both" //Split chunk strategy none, first, last, both
+};
+
+if(program.lossy_transparent) options.lossy_transparent = true;
+if(program.lossy) options.lossy_8bit = true;
+if(program.filter_strategies) options.filter_strategies = []; //TODO
+if(program.keepchunks) options.keepchunks = []; //TODO
+if(program.iterations) options.num_iterations = program.iterations;
+if(program.iterations_large) options.num_iterations_large = program.iterations_large;
+
+if(fs.existsSync(program.args[0])) {
+  zopflipng.pngcompress(program.args[0], program.args[1], options);
+} else {
+  console.log("File " + program.args[0] + " doesnt exist");
+}

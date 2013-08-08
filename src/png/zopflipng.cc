@@ -39,7 +39,6 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) 
 
   // Filter strategies to try
   //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
-  //std::vector<ZopfliPNGFilterStrategy> filter_strategies = args[3];
   fieldValue = options->Get(String::New("filter_strategies"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsArray()) {
@@ -174,7 +173,7 @@ Handle<Value> PNGDeflate(const Arguments& args) {
 
   ZopfliPNGOptions png_options;
   
-  if(args.Length() >= 2 && args[1]->IsObject()) {
+  if(args.Length() >= 2 && args[2]->IsObject()) {
     Handle<Object> options = Handle<Object>::Cast(args[2]);
     if(!parseOptions(options, png_options)) {
       return scope.Close(Undefined());

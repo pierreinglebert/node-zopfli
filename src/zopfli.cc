@@ -206,6 +206,8 @@ Handle<Value> Adler32(const Arguments& args) {
 }
 
 void init(Handle<Object> target) {
+  target->Set(String::NewSymbol("pngcompress"),
+      FunctionTemplate::New(PNGDeflate)->GetFunction());
   target->Set(String::NewSymbol("compress"),
       FunctionTemplate::New(Compress)->GetFunction());
   target->Set(String::NewSymbol("adler32"),
