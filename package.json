@@ -26,7 +26,7 @@
     "bin/zopflipng"
   ],
   "scripts": {
-    "test": "mocha test"
+    "test": "./node_modules/mocha/bin/mocha test"
   },
   "main": "zopfli.js",
   "gypfile": true
