@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/pierreinglebert/node-zopfli.git"
   },
+  "engines": {
+    "node": ">=0.10"
+  },
   "dependencies": {
     "commander": "~2.0.0",
     "bindings": "*",
