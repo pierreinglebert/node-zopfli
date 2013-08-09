@@ -12,6 +12,7 @@ Node >=0.10
 # USAGE
 
 ## Install
+    
     npm install node-zopfli
 
 or if you want zopfli binary globally
@@ -20,9 +21,11 @@ or if you want zopfli binary globally
 
 ## Binary (from command line)
 To gzip a file
+    
     zopfli file.txt
 
 To compress a png file
+    
     zopflipng file.png out.png
 
 ## Api
@@ -47,4 +50,5 @@ To compress a png file
 
 # Tests
 mocha is used for tests, you can run them with :
+    
     npm tests
