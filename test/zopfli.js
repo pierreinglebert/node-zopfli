@@ -27,8 +27,11 @@ var rmdir = function(dir) {
 };
 
 describe('Zopfli',function() {
-  if(fs.existsSync('tmp')) rmdir('tmp');
-  fs.mkdirSync('tmp');
+  before(function(done) {
+    if(fs.existsSync('tmp')) rmdir('tmp');
+    fs.mkdirSync('tmp');
+    done();
+  });
   after(function(done) {
     rmdir('tmp');
     done();
