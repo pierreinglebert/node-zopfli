@@ -3,7 +3,7 @@
 var program = require('commander');
 var fs = require('fs');
 var async = require('async');
-var zopflipng = require("../build/Release/zopflipng");
+var zopfli = require("../build/Release/zopfli");
 
 program
   .version('1.0.0')
@@ -36,7 +36,7 @@ if(program.iterations) options.num_iterations = program.iterations;
 if(program.iterations_large) options.num_iterations_large = program.iterations_large;
 
 if(fs.existsSync(program.args[0])) {
-  zopflipng.pngcompress(program.args[0], program.args[1], options);
+  zopfli.pngcompress(program.args[0], program.args[1], options);
 } else {
   console.log("File " + program.args[0] + " doesnt exist");
 }
