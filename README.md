@@ -8,8 +8,19 @@ Bindings for zopfli compressing lib.
 
 # USAGE
 
-## Binary
+## Install
+    npm install node-zopfli
+
+or if you want zopfli binary globally
+
+    npm install -g node-zopfli
+
+## Binary (from command line)
+To gzip a file
     zopfli file.txt
+
+To compress a png file
+    zopflipng file.png out.png
 
 ## Api
 ### Stream (async):
@@ -30,3 +41,7 @@ Bindings for zopfli compressing lib.
       blocksplittinglast: false,
       blocksplittingmax: 15
     }
+
+# Tests
+mocha is used for tests, you can run them with :
+    npm tests
