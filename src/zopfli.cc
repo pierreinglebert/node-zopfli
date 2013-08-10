@@ -135,8 +135,10 @@ Handle<Value> Compress(const Arguments& args) {
     }
   }
 
+  //Default options
   ZopfliOptions zopfli_options;
-  zopfli_options.verbose = false;
+  ZopfliInitOptions(&zopfli_options);
+
   if(error->IsNull()) {
     if(args.Length() >= 3 && args[2]->IsObject()) {
       Handle<Object> options = Handle<Object>::Cast(args[2]);
