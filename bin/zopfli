@@ -3,7 +3,7 @@
 var program = require('commander');
 var fs = require('fs');
 var async = require('async');
-var zopfli = require('../zopfli');
+var zopfli = require('../lib/zopfli');
 
 program
   .version('1.0.0')
