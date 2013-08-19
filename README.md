@@ -34,9 +34,17 @@ To compress a png file
       .pipe(new zopfli.createGzip(options))
       .pipe(fs.createWriteStream('file.js.gz'));
 
+### Buffer (async):
+    var input = new Buffer('i want to be compressed');
+    zopfli.deflate(input, options, function(err, deflated) {});
+    zopfli.zlib(input, options, function(err, zlibed) {});
+    zopfli.gzip(input, options, function(err, gziped) {});
+
 ### Buffer (sync):
-	var input = new Buffer('i want to be compressed');
-    var compressed = zopfli.deflate(input, options);
+    var input = new Buffer('i want to be compressed');
+    var deflated = zopfli.deflateSync(input, options);
+    var zlibed = zopfli.zlibSync(input, options);
+    var gziped = zopfli.gzipSync(input, options);
 
 ### Options 
     {
