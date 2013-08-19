@@ -29,31 +29,32 @@ To compress a png file
     zopflipng file.png out.png
 
 ## Api
-### Include
-    var zopfli = require("node-zopfli");
-
 ### Stream (async):
+    var zopfli = require("node-zopfli");
     fs.createReadStream('file.js')
       .pipe(zopfli.createGzip(options))
       .pipe(fs.createWriteStream('file.js.gz'));
 
 You can also directly use
+
     new Zopfli("gzip", options);
 
 
 ### Buffer (async):
+    var zopfli = require("node-zopfli");
     var input = new Buffer('i want to be compressed');
     zopfli.deflate(input, options, function(err, deflated) {});
     zopfli.zlib(input, options, function(err, zlibed) {});
     zopfli.gzip(input, options, function(err, gziped) {});
 
 ### Buffer (sync):
+    var zopfli = require("node-zopfli");
     var input = new Buffer('i want to be compressed');
     var deflated = zopfli.deflateSync(input, options);
     var zlibed = zopfli.zlibSync(input, options);
     var gziped = zopfli.gzipSync(input, options);
 
-### Options 
+### Options (default)
     {
       verbose: false,
       verbose_more: false,
@@ -65,9 +66,9 @@ You can also directly use
 
 #Build from sources
 
-  git clone --recursive https://github.com/pierreinglebert/node-zopfli
-  node-gyp configure
-  node-gyp build
+    git clone --recursive https://github.com/pierreinglebert/node-zopfli
+    node-gyp configure
+    node-gyp build
 
 # Tests
 mocha is used for tests, you can run them with :
