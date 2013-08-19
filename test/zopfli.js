@@ -184,7 +184,7 @@ describe('Zopfli stream',function() {
           next();
         });
         fs.createReadStream('test/fixtures/' + file)
-          .pipe(new zopfli.createDeflate())
+          .pipe(zopfli.createDeflate())
           .pipe(zlib.createInflateRaw())
           .pipe(writeStream);
       },
@@ -207,7 +207,7 @@ describe('Zopfli stream',function() {
           next();
         });
         fs.createReadStream('test/fixtures/' + file)
-          .pipe(new zopfli.createZlib())
+          .pipe(zopfli.createZlib())
           .pipe(zlib.createInflate())
           .pipe(writeStream);
       },
@@ -230,7 +230,7 @@ describe('Zopfli stream',function() {
           next();
         });
         fs.createReadStream('test/fixtures/' + file)
-          .pipe(new zopfli.createGzip())
+          .pipe(zopfli.createGzip())
           .pipe(zlib.createGunzip())
           .pipe(writeStream);
       },
