@@ -3,6 +3,7 @@
 #include <v8.h>
 
 #include <iostream>
+#include <cstring>
 
 #include "./png/zopflipng.h"
 #include "zopfli.h"
@@ -156,8 +157,13 @@ Handle<Value> DeflateSync(const Arguments& args) {
     inbufferdata, inbuffersize,
     &out, &outsize);
 
-  Local<Buffer> buf = Buffer::New((char*)out, outsize);
-  return scope.Close(buf->handle_);
+  Buffer *slowBuffer = Buffer::New(outsize);
+  memcpy(Buffer::Data(slowBuffer), (char*)out, outsize);
+  Local<Object> globalObj = Context::GetCurrent()->Global();
+  Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
+  Handle<Value> constructorArgs[3] = { slowBuffer->handle_, Integer::New(outsize), Integer::New(0) };
+  Local<Object> actualBuffer = bufferConstructor->NewInstance(3, constructorArgs);
+  return scope.Close(actualBuffer);
 } 
 
 Handle<Value> Deflate(const Arguments& args) {

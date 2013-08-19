@@ -29,6 +29,6 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha test"
   },
-  "main": "zopfli.js",
+  "main": "lib/zopfli.js",
   "gypfile": true
 }
