@@ -100,24 +100,14 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   return handle_scope.Close(error);
 }
 
-Handle<Value> Compress(const Arguments& args) {
-  HandleScope scope;
-  Local<Value> error = Local<Value>::New(Null());
-
-  //Callback function
-  if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
-    return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
-  }
-  Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
-
+Handle<Value> ParseArgs(const Arguments& args, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
+  HandleScope handle_scope;  
+  Handle<Value> error = Null();
   if(args.Length() < 1 || !Buffer::HasInstance(args[0])) {
     error = Exception::TypeError(String::New("First argument must be a buffer"));
   }
-  Local<Value> inbuffer = args[0];
-  size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
-  const unsigned char * inbufferdata = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
-
-  ZopfliFormat format = ZOPFLI_FORMAT_DEFLATE;
+  
+  format = ZOPFLI_FORMAT_DEFLATE;
   if(error->IsNull()) {
     if(args.Length() >= 2 && args[1]->IsString()) {
       std::string given_format(*String::AsciiValue(args[1]->ToString()));
@@ -135,10 +125,6 @@ Handle<Value> Compress(const Arguments& args) {
     }
   }
 
-  //Default options
-  ZopfliOptions zopfli_options;
-  ZopfliInitOptions(&zopfli_options);
-
   if(error->IsNull()) {
     if(args.Length() >= 3 && args[2]->IsObject()) {
       Handle<Object> options = Handle<Object>::Cast(args[2]);
@@ -147,11 +133,48 @@ Handle<Value> Compress(const Arguments& args) {
       error = Exception::TypeError(String::New("Third argument must be an object"));
     }
   }
+  return handle_scope.Close(error);
+}
 
+
+Handle<Value> DeflateSync(const Arguments& args) {
+  HandleScope scope;
+  ZopfliFormat format;
+  ZopfliOptions zopfli_options;
+  ZopfliInitOptions(&zopfli_options);
+  Local<Value> error = Local<Value>::New(ParseArgs(args, format, zopfli_options));
   if(!error->IsNull()) {
-    Local<Value> argv[] = { error };
-    callback->Call(Context::GetCurrent()->Global(), 1, argv);
-  } else {
+    ThrowException(error);
+    return scope.Close(Undefined());
+  }
+  Local<Value> inbuffer = args[0];
+  size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
+  const unsigned char * inbufferdata = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
+  unsigned char* out = 0;
+  size_t outsize = 0;
+  ZopfliCompress(&zopfli_options, format, 
+    inbufferdata, inbuffersize,
+    &out, &outsize);
+
+  Local<Buffer> buf = Buffer::New((char*)out, outsize);
+  return scope.Close(buf->handle_);
+} 
+
+Handle<Value> Deflate(const Arguments& args) {
+  HandleScope scope;
+  ZopfliFormat format;
+  ZopfliOptions zopfli_options;
+  ZopfliInitOptions(&zopfli_options);
+  Local<Value> error = Local<Value>::New(ParseArgs(args, format, zopfli_options));
+  if(error->IsNull()) {
+    //Callback function
+    if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
+      return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
+    }
+    Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
+    Local<Value> inbuffer = args[0];
+    size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
+    const unsigned char * inbufferdata = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
     unsigned char* out = 0;
     size_t outsize = 0;
     ZopfliCompress(&zopfli_options, format, 
@@ -164,9 +187,12 @@ Handle<Value> Compress(const Arguments& args) {
         Local<Value>::New(buf->handle_)
     };
     callback->Call(Context::GetCurrent()->Global(), 2, argv);
+    return scope.Close(Undefined());
+  } else {
+    return scope.Close(error);
   }
-  return scope.Close(Undefined());
 }
+
 
 unsigned updateAdler32(unsigned int adler, const unsigned char* data, size_t size)
 {
@@ -210,8 +236,10 @@ Handle<Value> Adler32(const Arguments& args) {
 void init(Handle<Object> target) {
   target->Set(String::NewSymbol("pngcompress"),
       FunctionTemplate::New(PNGDeflate)->GetFunction());
-  target->Set(String::NewSymbol("compress"),
-      FunctionTemplate::New(Compress)->GetFunction());
+  target->Set(String::NewSymbol("deflate"),
+      FunctionTemplate::New(Deflate)->GetFunction());
+  target->Set(String::NewSymbol("deflateSync"),
+      FunctionTemplate::New(DeflateSync)->GetFunction());
   target->Set(String::NewSymbol("adler32"),
       FunctionTemplate::New(Adler32)->GetFunction());
 }

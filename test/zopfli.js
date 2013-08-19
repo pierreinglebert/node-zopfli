@@ -26,7 +26,8 @@ var rmdir = function(dir) {
   fs.rmdirSync(dir);
 };
 
-describe('Zopfli',function() {
+
+describe('Zopfli buffer',function() {
   before(function(done) {
     if(fs.existsSync('tmp')) rmdir('tmp');
     fs.mkdirSync('tmp');
@@ -37,10 +38,114 @@ describe('Zopfli',function() {
     done();
   });
   describe('deflate',function() {
-
+    it('could be deflate using buffer by node zlib', function(done){
+      var files = fs.readdirSync('test/fixtures');
+      async.eachSeries(files, function(file, next) {
+        var buffer = fs.readFileSync('test/fixtures/' + file);
+        zopfli.deflate(buffer, {}, function(err, result) {
+          if(err) {
+            next(err);
+          } else {
+            zlib.inflateRaw(result, function(err, result) {
+              if(!err) {
+                assert.equal(result.toString(), fs.readFileSync('test/fixtures/' + file).toString());
+              }
+              next(err);
+            });
+          }
+        });
+      },
+      function(err){
+        assert.isNull(err, 'there was no error');
+        done();
+      });
+    });
   });
   describe('zlib',function() {
-    it('could be inflate by node zlib', function(done){
+    it('could be zlib using buffer by node zlib', function(done){
+      var files = fs.readdirSync('test/fixtures');
+      async.eachSeries(files, function(file, next) {
+        var buffer = fs.readFileSync('test/fixtures/' + file);
+        zopfli.zlib(buffer, {}, function(err, result) {
+          if(err) {
+            next(err);
+          } else {
+            zlib.inflate(result, function(err, result) {
+              if(!err) {
+                assert.equal(result.toString(), fs.readFileSync('test/fixtures/' + file).toString());
+              }
+              next(err);
+            });
+          }
+        });
+      },
+      function(err){
+        assert.isNull(err, 'there was no error');
+        done();
+      });
+    });
+  });
+  describe('gzip',function() {
+    it('could be gzip using buffer by node zlib', function(done){
+      var files = fs.readdirSync('test/fixtures');
+      async.eachSeries(files, function(file, next) {
+        var buffer = fs.readFileSync('test/fixtures/' + file);
+        zopfli.gzip(buffer, {}, function(err, result) {
+          if(err) {
+            next(err);
+          } else {
+            zlib.gunzip(result, function(err, result) {
+              if(!err) {
+                assert.equal(result.toString(), fs.readFileSync('test/fixtures/' + file).toString());
+              }
+              next(err);
+            });
+          }
+        });
+      },
+      function(err){
+        assert.isNull(err, 'there was no error');
+        done();
+      });
+    });
+  });
+});
+
+describe('Zopfli stream',function() {
+  before(function(done) {
+    if(fs.existsSync('tmp')) rmdir('tmp');
+    fs.mkdirSync('tmp');
+    done();
+  });
+  after(function(done) {
+    rmdir('tmp');
+    done();
+  });
+  describe('deflate',function() {
+    it('could be deflate using stream by node zlib', function(done){
+      var files = fs.readdirSync('test/fixtures');
+      async.eachSeries(files, function(file, next) {
+        var writeStream = fs.createWriteStream('tmp/'  + file);
+        writeStream.on('error', function(err) {
+          next(err);
+        });
+        writeStream.on('close', function() {
+          assert.equal(fs.readFileSync('test/fixtures/' + file).toString(), fs.readFileSync('tmp/'  + file).toString());
+          next();
+        });
+        fs.createReadStream('test/fixtures/' + file)
+          .pipe(new zopfli.createDeflate())
+          .pipe(zlib.createInflateRaw())
+          .pipe(writeStream);
+      },
+      function(err){
+        if(err) console.log(err);
+        done();
+      });
+    });
+  });
+  describe('zlib',function() {
+    it('could be inflate using stream by node zlib', function(done){
       var files = fs.readdirSync('test/fixtures');
       async.eachSeries(files, function(file, next) {
         var writeStream = fs.createWriteStream('tmp/'  + file);
@@ -63,7 +168,7 @@ describe('Zopfli',function() {
     });
   });
   describe('gzip',function() {
-    it('could be inflate by node gzip', function(done){
+    it('could be inflate using stream by node gzip', function(done){
       var files = fs.readdirSync('test/fixtures');
       async.eachSeries(files, function(file, next) {
         var writeStream = fs.createWriteStream('tmp/'  + file);
