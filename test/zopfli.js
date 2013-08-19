@@ -140,7 +140,7 @@ describe('Zopfli buffer async',function() {
       var files = fs.readdirSync('test/fixtures');
       async.eachSeries(files, function(file, next) {
         var buffer = fs.readFileSync('test/fixtures/' + file);
-        zopfli.gzip(buffer, {}, function(err, result) {
+        zopfli.gzip(buffer, function(err, result) {
           if(err) {
             next(err);
           } else {
