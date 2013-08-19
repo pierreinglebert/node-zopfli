@@ -21,5 +21,5 @@ exports.zlib = function(buffer, options, callback) {
 };
 
 exports.deflate = function(buffer, options, callback) {
-  zopfli.deflate(buffer, options, callback);
+  Zopfli.deflate(buffer, options, callback);
 };
