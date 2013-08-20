@@ -35,7 +35,7 @@ To compress a png file
       .pipe(zopfli.createGzip(options))
       .pipe(fs.createWriteStream('file.js.gz'));
 
-You can also directly use
+Instead of zopfli.createGzip, you can also use
 
     new Zopfli("gzip", options);
 
@@ -73,4 +73,4 @@ You can also directly use
 # Tests
 mocha is used for tests, you can run them with :
     
-    npm tests
+    npm test
