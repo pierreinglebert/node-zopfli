@@ -22,14 +22,20 @@
     "chai": "1.7.x",
     "mocha": "1.12.x",
     "coveralls": "~2.2.0",
-    "mocha-lcov-reporter": "0.0.1"
+    "mocha-lcov-reporter": "0.0.1",
+    "blanket": "~1.1.5"
   },
   "bin": [
     "bin/zopfli",
     "bin/zopflipng"
   ],
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha test"
+    "test": "./node_modules/mocha/bin/mocha test",
+    "test-coveralls": "NODE_ENV=test YOURPACKAGE_COVERAGE=1 ./node_modules/.bin/mocha --require blanket --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js",
+    "blanket": {
+      "pattern": "lib",
+      "data-cover-never": "node_modules"
+    }
   },
   "main": "lib/zopfli.js",
   "gypfile": true

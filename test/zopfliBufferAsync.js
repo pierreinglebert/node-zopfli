@@ -12,7 +12,7 @@ var testBufferAsync = function(deflate, inflate, done) {
   var files = fs.readdirSync('test/fixtures');
   async.eachSeries(files, function(file, next) {
     var buffer = fs.readFileSync('test/fixtures/' + file);
-    deflate(buffer, {}, function(err, result) {
+    deflate(buffer, function(err, result) {
       if(err) {
         next(err);
       } else {
