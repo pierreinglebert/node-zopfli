@@ -20,7 +20,9 @@
   },
   "devDependencies": {
     "chai": "1.7.x",
-    "mocha": "1.12.x"
+    "mocha": "1.12.x",
+    "coveralls": "~2.2.0",
+    "mocha-lcov-reporter": "0.0.1"
   },
   "bin": [
     "bin/zopfli",
