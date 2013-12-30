@@ -6,7 +6,7 @@ var async = require('async');
 var zopfli = require("../build/Release/zopfli");
 
 program
-  .version('1.0.0')
+  .version('1.0.2')
   .usage('[options] file destfile')
   .option('--lossy_transparent', 'Allow altering hidden colors of fully transparent pixels')
   .option('--lossy', 'Convert 16-bit per channel images to 8-bit per channel')
