@@ -2,7 +2,7 @@
 #include <v8.h>
 
 #include <iostream>
-
+#include "nan.h"
 
 #include "lodepng/lodepng.h"
 #include "zopflipng_lib.h"
@@ -156,18 +156,18 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) 
 }
 
 
-Handle<Value> PNGDeflate(const Arguments& args) {
-  HandleScope scope;
+NAN_METHOD(PNGDeflate) {
+  NanScope();
   
   if(args.Length() < 1 || !args[0]->IsString()) {
     ThrowException(Exception::TypeError(String::New("First argument must be a string")));
-    return scope.Close(Undefined());
+    NanReturnUndefined();
   }
   std::string imageName(*String::AsciiValue(args[0]->ToString()));
 
   if(args.Length() < 2 || !args[1]->IsString()) {
     ThrowException(Exception::TypeError(String::New("First argument must be a string")));
-    return scope.Close(Undefined());
+    NanReturnUndefined();
   }
   std::string out_filename(*String::AsciiValue(args[1]->ToString()));
 
@@ -176,7 +176,7 @@ Handle<Value> PNGDeflate(const Arguments& args) {
   if(args.Length() >= 2 && args[2]->IsObject()) {
     Handle<Object> options = Handle<Object>::Cast(args[2]);
     if(!parseOptions(options, png_options)) {
-      return scope.Close(Undefined());
+      NanReturnUndefined();
     }
   }
 
@@ -203,5 +203,5 @@ Handle<Value> PNGDeflate(const Arguments& args) {
       lodepng::save_file(resultpng, out_filename);
     }
   }
-  return scope.Close(Integer::New(error));
+  NanReturnValue(Integer::New(error));
 }
