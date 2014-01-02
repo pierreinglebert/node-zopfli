@@ -7,12 +7,12 @@ var zopfli = require('../lib/zopfli');
 
 program
   .version('1.0.2')
-  .usage('[options] file destfile')
-  .option('--deflate', 'raw deflate')
-  .option('--zlib', 'zlib container')
-  .option('--gzip', 'Gzip file')
-  .option('-e --ext', 'file extension')
-  .option('-i, --iterations', 'Number of iterations')
+  .usage('[options] [files...]')
+  .option('--deflate', 'raw deflate (without container)')
+  .option('--zlib', 'deflate using zlib container')
+  .option('--gzip', 'deflate using gzip container')
+  .option('-e --ext', 'overwrite default file extension')
+  .option('-i, --iterations', 'number of iterations (higher = smaller = slower)')
   .option('-v, --verbose', 'Verbose')
   .parse(process.argv);
 
@@ -33,14 +33,18 @@ if (program.deflate) method = zopfli.createDeflate, extension = 'zlib';
 if (program.zlib) method = zopfli.createZlib, extension = 'deflate';
 if (program.ext) extension = program.ext;
 
-async.eachSeries(
-  program.args,
-  function(item, next) {
-    fs.createReadStream(item)
-      .pipe(new method(options))
-      .pipe(fs.createWriteStream(item + '.' + extension));
-  },
-  function(err) {
-    if(err) throw err;
-  }
-);
+if(program.args.length == 0) {
+  program.help();
+} else {
+  async.eachSeries(
+    program.args,
+    function(item, next) {
+      fs.createReadStream(item)
+        .pipe(new method(options))
+        .pipe(fs.createWriteStream(item + '.' + extension));
+    },
+    function(err) {
+      if(err) throw err;
+    }
+  );
+}
