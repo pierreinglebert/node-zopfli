@@ -27,17 +27,17 @@ var testBufferSync = function(deflate, inflate, done) {
 
 describe('Zopfli buffer sync',function() {
   describe('deflate',function() {
-    it('could be deflate synchronously using buffer by node zlib', function(done){
+    it('should deflate synchronously using buffer by node zlib', function(done){
       testBufferSync(zopfli.deflateSync, zlib.inflateRaw, done);
     });
   });
   describe('zlib',function() {
-    it('could be zlib synchronously using buffer by node zlib', function(done){
+    it('should zlib synchronously using buffer by node zlib', function(done){
       testBufferSync(zopfli.zlibSync, zlib.inflate, done);
     });
   });
   describe('gzip',function() {
-    it('could be deflate synchronously using buffer by node zlib', function(done){
+    it('should deflate synchronously using buffer by node zlib', function(done){
       testBufferSync(zopfli.gzipSync, zlib.gunzip, done);
     });
   });

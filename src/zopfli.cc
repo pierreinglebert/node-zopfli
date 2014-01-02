@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cstring>
 
+#include "nan.h"
+
 #include "./png/zopflipng.h"
 #include "zopfli.h"
 
@@ -15,7 +17,8 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   
   Local<Value> fieldValue;
 
-  HandleScope handle_scope;
+  //NanScope();
+
   Handle<Value> error = Null();
 
   // Whether to print output
@@ -98,55 +101,53 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
       error = Exception::TypeError(String::New("Wrong type for option 'blocksplittingmax'"));
     }
   }
-  return handle_scope.Close(error);
+  return (error);
 }
 
-Handle<Value> ParseArgs(const Arguments& args, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
-  HandleScope handle_scope;  
+Handle<Value> ParseArgs(_NAN_METHOD_ARGS_TYPE args, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
   Handle<Value> error = Null();
+
   if(args.Length() < 1 || !Buffer::HasInstance(args[0])) {
-    error = Exception::TypeError(String::New("First argument must be a buffer"));
+    return Exception::TypeError(String::New("First argument must be a buffer"));
   }
   
   format = ZOPFLI_FORMAT_DEFLATE;
-  if(error->IsNull()) {
-    if(args.Length() >= 2 && args[1]->IsString()) {
-      std::string given_format(*String::AsciiValue(args[1]->ToString()));
-      if(given_format.compare("gzip") == 0) {
-        format = ZOPFLI_FORMAT_GZIP;
-      } else if(given_format.compare("zlib") == 0) {
-        format = ZOPFLI_FORMAT_ZLIB;
-      } else if(given_format.compare("deflate") == 0) {
-        format = ZOPFLI_FORMAT_DEFLATE;
-      } else {
-        error = Exception::TypeError(String::New("Invalid format"));
-      }
+  if(args.Length() >= 2 && args[1]->IsString()) {
+    std::string given_format(*String::AsciiValue(args[1]->ToString()));
+    if(given_format.compare("gzip") == 0) {
+      format = ZOPFLI_FORMAT_GZIP;
+    } else if(given_format.compare("zlib") == 0) {
+      format = ZOPFLI_FORMAT_ZLIB;
+    } else if(given_format.compare("deflate") == 0) {
+      format = ZOPFLI_FORMAT_DEFLATE;
     } else {
-      error = Exception::TypeError(String::New("Second argument must be a string"));
+      return Exception::TypeError(String::New("Invalid Zopfli format"));
     }
+  } else {
+    return Exception::TypeError(String::New("Second argument must be a string"));
   }
 
   if(error->IsNull()) {
     if(args.Length() >= 3 && args[2]->IsObject()) {
       Handle<Object> options = Handle<Object>::Cast(args[2]);
-      error = Local<Value>::New(parseOptions(options, zopfli_options));
+      return NanNewLocal<v8::Value>(parseOptions(options, zopfli_options));
     } else {
-      error = Exception::TypeError(String::New("Third argument must be an object"));
+      return Exception::TypeError(String::New("Third argument must be an object"));
     }
   }
-  return handle_scope.Close(error);
+  return error;
 }
 
 
-Handle<Value> DeflateSync(const Arguments& args) {
-  HandleScope scope;
+NAN_METHOD(DeflateSync) {
+  NanScope();
   ZopfliFormat format;
   ZopfliOptions zopfli_options;
   ZopfliInitOptions(&zopfli_options);
-  Local<Value> error = Local<Value>::New(ParseArgs(args, format, zopfli_options));
+  Local<Value> error = NanNewLocal<v8::Value>(ParseArgs(args, format, zopfli_options));
   if(!error->IsNull()) {
     ThrowException(error);
-    return scope.Close(Undefined());
+    NanReturnUndefined();
   }
   Local<Value> inbuffer = args[0];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
@@ -157,26 +158,23 @@ Handle<Value> DeflateSync(const Arguments& args) {
     inbufferdata, inbuffersize,
     &out, &outsize);
 
-  Buffer *slowBuffer = Buffer::New(outsize);
-  memcpy(Buffer::Data(slowBuffer), (char*)out, outsize);
-  Local<Object> globalObj = Context::GetCurrent()->Global();
-  Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
-  Handle<Value> constructorArgs[3] = { slowBuffer->handle_, Integer::New(outsize), Integer::New(0) };
-  Local<Object> actualBuffer = bufferConstructor->NewInstance(3, constructorArgs);
-  return scope.Close(actualBuffer);
+  Local<Object> actualBuffer = NanNewBufferHandle((char*)out, outsize);
+  NanReturnValue(actualBuffer);
 } 
 
-Handle<Value> Deflate(const Arguments& args) {
-  HandleScope scope;
+NAN_METHOD(Deflate) {
+  NanScope();
+  
   ZopfliFormat format;
   ZopfliOptions zopfli_options;
   ZopfliInitOptions(&zopfli_options);
-  Local<Value> error = Local<Value>::New(ParseArgs(args, format, zopfli_options));
+  
+  if(args.Length() == 0 || (args.Length() >= 1 && !args[args.Length()-1]->IsFunction())) {
+    return NanThrowError(Exception::TypeError(String::New("Last argument must be a callback function")));
+  }
+
+  Local<Value> error = NanNewLocal<v8::Value>(ParseArgs(args, format, zopfli_options));
   if(error->IsNull()) {
-    //Callback function
-    if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
-      return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
-    }
     Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
     Local<Value> inbuffer = args[0];
     size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
@@ -187,15 +185,14 @@ Handle<Value> Deflate(const Arguments& args) {
       inbufferdata, inbuffersize,
       &out, &outsize);
 
-    Local<Buffer> buf = Buffer::New((char*)out, outsize);
     Local<Value> argv[] = {
-        Local<Value>::New(Null()),
-        Local<Value>::New(buf->handle_)
+        NanNewLocal<v8::Value>(Null()),
+        NanNewLocal<v8::Value>(NanNewBufferHandle((char*)out, outsize))
     };
     callback->Call(Context::GetCurrent()->Global(), 2, argv);
-    return scope.Close(Undefined());
+    NanReturnUndefined();
   } else {
-    return scope.Close(error);
+    NanReturnValue(error);
   }
 }
 
@@ -220,33 +217,34 @@ unsigned updateAdler32(unsigned int adler, const unsigned char* data, size_t siz
   return (s2 << 16) | s1;
 }
 
-Handle<Value> Adler32(const Arguments& args) {
-  HandleScope scope;
+NAN_METHOD(Adler32) {
+  NanScope();
 
   if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
-    return ThrowException(Exception::TypeError(String::New("adler must be an unsigned integer")));
+    return NanThrowError(Exception::TypeError(String::New("adler must be an unsigned integer")));
   }
 
   unsigned int adler = args[0]->Uint32Value();
   
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
-    return ThrowException(Exception::TypeError(String::New("data must be a buffer")));
+    return NanThrowError(Exception::TypeError(String::New("data must be a buffer")));
   }
   Local<Value> inbuffer = args[1];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
   const unsigned char * data = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
   adler = updateAdler32(adler, data, inbuffersize);
-  return scope.Close(Integer::NewFromUnsigned(adler));
+  NanReturnValue(Integer::NewFromUnsigned(adler));
 }
 
-void init(Handle<Object> target) {
-  target->Set(String::NewSymbol("pngcompress"),
-      FunctionTemplate::New(PNGDeflate)->GetFunction());
-  target->Set(String::NewSymbol("deflate"),
-      FunctionTemplate::New(Deflate)->GetFunction());
-  target->Set(String::NewSymbol("deflateSync"),
-      FunctionTemplate::New(DeflateSync)->GetFunction());
-  target->Set(String::NewSymbol("adler32"),
-      FunctionTemplate::New(Adler32)->GetFunction());
+void InitAll(Handle<Object> exports) {
+  exports->Set(NanSymbol("pngcompress"),
+    FunctionTemplate::New(PNGDeflate)->GetFunction());
+  exports->Set(NanSymbol("deflate"),
+    FunctionTemplate::New(Deflate)->GetFunction());
+  exports->Set(NanSymbol("deflateSync"),
+    FunctionTemplate::New(DeflateSync)->GetFunction());
+  exports->Set(NanSymbol("adler32"),
+    FunctionTemplate::New(Adler32)->GetFunction());
 }
-NODE_MODULE(zopfli, init)
+
+NODE_MODULE(zopfli, InitAll)
