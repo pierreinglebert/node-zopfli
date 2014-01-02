@@ -40,17 +40,14 @@ if(program.args.length == 0) {
     program.args,
     function(item, next) {
       fs.createReadStream(item)
-        .on('error', function(error) {
-          console.log(error);
-        })
+        .on('error', next)
         .pipe(new method(options))
-        .on('error', function(error) {
-          console.log(error);
-        })
+        .on('error', next)
         .pipe(fs.createWriteStream(item + '.' + extension))
-        .on('error', function() {
-          console.log(error);
-        });
+        .on('error', next)
+        .on('finish', function() {
+          next();
+        })
     },
     function(err) {
       if(err) throw err;
