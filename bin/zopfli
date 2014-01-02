@@ -6,7 +6,7 @@ var async = require('async');
 var zopfli = require('../lib/zopfli');
 
 program
-  .version('1.0.2')
+  .version('1.0.3')
   .usage('[options] [files...]')
   .option('--deflate', 'raw deflate (without container)')
   .option('--zlib', 'deflate using zlib container')
