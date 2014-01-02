@@ -58,17 +58,17 @@ describe('Zopfli stream',function() {
     done();
   });
   describe('deflate',function() {
-    it('could be deflate using stream by node zlib', function(done){
+    it('should deflate using stream by node zlib', function(done){
       testStream(zopfli.createDeflate, zlib.createInflateRaw, done);
     });
   });
   describe('zlib',function() {
-    it('could be inflate using stream by node zlib', function(done){
+    it('should inflate using stream by node zlib', function(done){
       testStream(zopfli.createZlib, zlib.createInflate, done);
     });
   });
   describe('gzip',function() {
-    it('could be inflate using stream by node gzip', function(done){
+    it('should inflate using stream by node gzip', function(done){
       testStream(zopfli.createGzip, zlib.createGunzip, done);
     });
   });

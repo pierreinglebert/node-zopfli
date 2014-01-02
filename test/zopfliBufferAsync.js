@@ -31,18 +31,28 @@ var testBufferAsync = function(deflate, inflate, done) {
 };
 
 describe('Zopfli buffer async',function() {
+  it('should throw an exception if no callback is given', function() {
+    var files = fs.readdirSync('test/fixtures');
+    var buffer = fs.readFileSync('test/fixtures/' + files[0]);
+    assert.throw(function() {
+        zopfli.deflate(buffer);
+      }, 
+      Error, 
+      "Last argument must be a callback function"
+    );
+  });
   describe('deflate',function() {
-    it('could be deflated using buffer by zopfli and inflated by node zlib', function(done){
+    it('should deflate using buffer by zopfli and inflated by node zlib', function(done){
       testBufferAsync(zopfli.deflate, zlib.inflateRaw, done);
     });
   });
   describe('zlib',function() {
-    it('could be zlib using buffer by node zlib', function(done){
+    it('should zlib using buffer by node zlib', function(done){
       testBufferAsync(zopfli.zlib, zlib.inflate, done);
     });
   });
   describe('gzip',function() {
-    it('could be gzip using buffer by node zlib', function(done){
+    it('should gzip using buffer by node zlib', function(done){
       testBufferAsync(zopfli.gzip, zlib.gunzip, done);
     });
   });

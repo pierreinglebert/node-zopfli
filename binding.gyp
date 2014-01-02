@@ -31,7 +31,8 @@
       'lflags': ['-lm'],
       "include_dirs": [
         "zopfli/src/zopfli",
-        "zopfli/src/zopflipng"
+        "zopfli/src/zopflipng",
+        "<!(node -p -e \"require('path').relative('.', require('path').dirname(require.resolve('nan')))\")"
       ],
       "sources": [
         "src/zopfli.cc",
