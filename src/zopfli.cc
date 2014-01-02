@@ -47,7 +47,7 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   */
   fieldValue = options->Get(String::New("numiterations"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
-    if(fieldValue->IsInt32()) {
+    if(fieldValue->IsInt32() && fieldValue->ToInt32()->Value() > 0) {
       zopfli_options.numiterations = fieldValue->ToInt32()->Value();
     } else {
       //Wrong
@@ -172,12 +172,12 @@ Handle<Value> Deflate(const Arguments& args) {
   ZopfliOptions zopfli_options;
   ZopfliInitOptions(&zopfli_options);
   Local<Value> error = Local<Value>::New(ParseArgs(args, format, zopfli_options));
+  if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
+    return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
+  }
+  Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
   if(error->IsNull()) {
     //Callback function
-    if(args.Length() >= 1 && !args[args.Length()-1]->IsFunction()) {
-      return ThrowException(Exception::TypeError(String::New("Last argument must be a callback function")));
-    }
-    Local<Function> callback = Local<Function>::Cast(args[args.Length()-1]);
     Local<Value> inbuffer = args[0];
     size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
     const unsigned char * inbufferdata = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
@@ -195,7 +195,12 @@ Handle<Value> Deflate(const Arguments& args) {
     callback->Call(Context::GetCurrent()->Global(), 2, argv);
     return scope.Close(Undefined());
   } else {
-    return scope.Close(error);
+    printf("error\n");
+    Local<Value> argv[] = {
+        error
+    };
+    callback->Call(Context::GetCurrent()->Global(), 1, argv);
+    return scope.Close(Undefined());
   }
 }
 

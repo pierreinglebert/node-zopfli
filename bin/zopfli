@@ -11,8 +11,8 @@ program
   .option('--deflate', 'raw deflate (without container)')
   .option('--zlib', 'deflate using zlib container')
   .option('--gzip', 'deflate using gzip container')
-  .option('-e --ext', 'overwrite default file extension')
-  .option('-i, --iterations', 'number of iterations (higher = smaller = slower)')
+  .option('-e, --ext <s>', 'overwrite default file extension')
+  .option('-i, --iterations <n>', 'number of iterations (higher = smaller = slower)')
   .option('-v, --verbose', 'Verbose')
   .parse(process.argv);
 
@@ -25,7 +25,7 @@ var options = {
   blocksplittingmax: 15
 };
 
-if(program.iterations) options.numiterations = program.iterations;
+if(program.iterations) options.numiterations = parseInt(program.iterations);
 if(program.verbose) options.verbose = program.verbose;
 
 var method = zopfli.createGzip, extension = 'gz';
@@ -40,8 +40,17 @@ if(program.args.length == 0) {
     program.args,
     function(item, next) {
       fs.createReadStream(item)
+        .on('error', function(error) {
+          console.log(error);
+        })
         .pipe(new method(options))
-        .pipe(fs.createWriteStream(item + '.' + extension));
+        .on('error', function(error) {
+          console.log(error);
+        })
+        .pipe(fs.createWriteStream(item + '.' + extension))
+        .on('error', function() {
+          console.log(error);
+        });
     },
     function(err) {
       if(err) throw err;
