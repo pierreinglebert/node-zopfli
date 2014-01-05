@@ -10,8 +10,8 @@ Bindings for zopfli compressing lib.
 
 # Prerequisites
 
-Node >=0.10
-Python & make (unix) or visual studio express (windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
+* Python
+* make (unix) or visual studio express (windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
 
 # USAGE
 
