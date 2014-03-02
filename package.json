@@ -16,8 +16,8 @@
     "bindings": "*",
     "buffer-crc32": "~0.2.1",
     "async": "~0.2.9",
-    "underscore": "~1.5.1",
-    "nan": "~0.7.0"
+    "nan": "~0.7.0",
+    "lodash": "^2.4.1"
   },
   "devDependencies": {
     "jshint": "~2.4.0",
@@ -32,7 +32,9 @@
     "bin/zopflipng"
   ],
   "scripts": {
-    "test": "make test",
+    "test": "make test"
+  },
+  "config": {
     "blanket": {
       "pattern": "lib",
       "data-cover-never": "node_modules"

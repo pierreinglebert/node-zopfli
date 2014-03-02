@@ -32,7 +32,7 @@
       "include_dirs": [
         "zopfli/src/zopfli",
         "zopfli/src/zopflipng",
-        "<!(node -p -e \"require('path').relative('.', require('path').dirname(require.resolve('nan')))\")"
+        "<!(node -e \"require('nan')\")"
       ],
       "sources": [
         "src/zopfli.cc",
