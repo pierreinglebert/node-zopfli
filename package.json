@@ -16,14 +16,14 @@
     "bindings": "*",
     "buffer-crc32": "~0.2.1",
     "async": "~0.2.9",
-    "nan": "~0.7.0",
-    "lodash": "^2.4.1"
+    "lodash": "~2.4.1",
+    "nan": "~0.8.0"
   },
   "devDependencies": {
     "jshint": "~2.4.0",
-    "chai": "~1.8.1",
-    "mocha": "~1.16.2",
-    "coveralls": "~2.6.1",
+    "chai": "~1.9.0",
+    "mocha": "~1.17.1",
+    "coveralls": "~2.8.0",
     "mocha-lcov-reporter": "0.0.1",
     "blanket": "~1.1.5"
   },
