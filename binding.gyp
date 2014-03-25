@@ -35,7 +35,7 @@
         "<!(node -e \"require('nan')\")"
       ],
       "sources": [
-        "src/zopfli.cc",
+        "src/zopfli-binding.cc",
       	"src/png/zopflipng.cc",
       	"zopfli/src/zopfli/blocksplitter.c",
       	"zopfli/src/zopfli/cache.c",
