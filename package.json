@@ -2,7 +2,7 @@
   "author": "Pierre Inglebert",
   "name": "node-zopfli",
   "description": "Compress files with zopfli algorithm",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
@@ -22,8 +22,8 @@
   "devDependencies": {
     "jshint": "~2.4.0",
     "chai": "~1.9.0",
-    "mocha": "~1.17.1",
-    "coveralls": "~2.8.0",
+    "mocha": "~1.18.2",
+    "coveralls": "~2.10.0",
     "mocha-lcov-reporter": "0.0.1",
     "blanket": "~1.1.5"
   },
