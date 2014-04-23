@@ -2,6 +2,9 @@
   "author": "Pierre Inglebert",
   "name": "node-zopfli",
   "description": "Compress files with zopfli algorithm",
+  "keywords": [
+    "zopfli", "zlib", "compress"
+  ],
   "version": "1.1.0",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
