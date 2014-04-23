@@ -22,27 +22,27 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
 
   //NanScope();
 
-  Handle<Value> error = Null();
+  Handle<Value> error = NanNull();
 
   // Whether to print output
-  fieldValue = options->Get(String::New("verbose"));
+  fieldValue = options->Get(NanNew<v8::String>("verbose"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       zopfli_options.verbose = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      error = Exception::TypeError(String::New("Wrong type for option 'verbose'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'verbose'"));
     }
   }
 
   // Whether to print more detailed output
-  fieldValue = options->Get(String::New("verbose_more"));
+  fieldValue = options->Get(NanNew<v8::String>("verbose_more"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       zopfli_options.verbose_more = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      error = Exception::TypeError(String::New("Wrong type for option 'verbose_more'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'verbose_more'"));
     }
   }
 
@@ -51,13 +51,13 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   compression cost. Good values: 10, 15 for small files, 5 for files over
   several MB in size or it will be too slow.
   */
-  fieldValue = options->Get(String::New("numiterations"));
+  fieldValue = options->Get(NanNew<v8::String>("numiterations"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsInt32() && fieldValue->ToInt32()->Value() > 0) {
       zopfli_options.numiterations = fieldValue->ToInt32()->Value();
     } else {
       //Wrong
-      error = Exception::TypeError(String::New("Wrong type for option 'numiterations'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'numiterations'"));
     }
   }
 
@@ -66,13 +66,13 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   for the block boundaries. Block splitting gives better compression. Default:
   true (1).
   */
-  fieldValue = options->Get(String::New("blocksplitting"));
+  fieldValue = options->Get(NanNew<v8::String>("blocksplitting"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       zopfli_options.blocksplitting = (fieldValue->ToBoolean()->Value()) ? 1 : 0;
     } else {
       //Wrong
-      error = Exception::TypeError(String::New("Wrong type for option 'blocksplitting'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'blocksplitting'"));
     }
   }
 
@@ -82,13 +82,13 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   iterative LZ77 on each individual block. Depending on the file, either first
   or last gives the best compression. Default: false (0).
   */
-  fieldValue = options->Get(String::New("blocksplittinglast"));
+  fieldValue = options->Get(NanNew<v8::String>("blocksplittinglast"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       zopfli_options.blocksplittinglast = (fieldValue->ToBoolean()->Value()) ? 1 : 0;
     } else {
       //Wrong
-      error = Exception::TypeError(String::New("Wrong type for option 'blocksplittinglast'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'blocksplittinglast'"));
     }
   }
 
@@ -96,22 +96,22 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
   Maximum amount of blocks to split into (0 for unlimited, but this can give
   extreme results that hurt compression on some files). Default value: 15.
   */
-  fieldValue = options->Get(String::New("blocksplittingmax"));
+  fieldValue = options->Get(NanNew<v8::String>("blocksplittingmax"));
   if(error->IsNull() && !fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsInt32()) {
       zopfli_options.blocksplittingmax = fieldValue->ToInt32()->Value();
     } else {
-      error = Exception::TypeError(String::New("Wrong type for option 'blocksplittingmax'"));
+      error = Exception::TypeError(NanNew<v8::String>("Wrong type for option 'blocksplittingmax'"));
     }
   }
   return (error);
 }
 
   Handle<Value> ParseArgs(_NAN_METHOD_ARGS_TYPE args, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
-    Handle<Value> error = Null();
+    Handle<Value> error = NanNull();
 
     if(args.Length() < 1 || !Buffer::HasInstance(args[0])) {
-      return Exception::TypeError(String::New("First argument must be a buffer"));
+      return Exception::TypeError(NanNew<v8::String>("First argument must be a buffer"));
     }
 
     format = ZOPFLI_FORMAT_DEFLATE;
@@ -124,18 +124,18 @@ Handle<Value> parseOptions(const Handle<Object>& options, ZopfliOptions& zopfli_
       } else if(given_format.compare("deflate") == 0) {
         format = ZOPFLI_FORMAT_DEFLATE;
       } else {
-        return Exception::TypeError(String::New("Invalid Zopfli format"));
+        return Exception::TypeError(NanNew<v8::String>("Invalid Zopfli format"));
       }
     } else {
-      return Exception::TypeError(String::New("Second argument must be a string"));
+      return Exception::TypeError(NanNew<v8::String>("Second argument must be a string"));
     }
 
     if(error->IsNull()) {
       if(args.Length() >= 3 && args[2]->IsObject()) {
         Handle<Object> options = Handle<Object>::Cast(args[2]);
-        return NanNewLocal<v8::Value>(parseOptions(options, zopfli_options));
+        return NanNew<v8::Value>(parseOptions(options, zopfli_options));
       } else {
-        return Exception::TypeError(String::New("Third argument must be an object"));
+        return Exception::TypeError(NanNew<v8::String>("Third argument must be an object"));
       }
     }
     return error;
@@ -169,7 +169,7 @@ inline void Base::CallErrCallback(const v8::Handle<v8::Function>& callback,
                                   const v8::Handle<v8::Value>& err) {
   //v8::Handle<v8::Value> err =
   //  v8::Exception::Error(v8::String::New(str.data(), str.length()));
-  v8::Handle<v8::Value> res = NanNewLocal<v8::Value>(v8::Null());
+  v8::Handle<v8::Value> res = NanNew<v8::Value>(NanNull());
   CallCallback(callback, err, res);
 }
 
@@ -179,7 +179,7 @@ void CompressBinding::After(uv_work_t *req) {
   ZopfliRequest<std::string>* zopfli_req = static_cast<ZopfliRequest<std::string>*>(req->data);
   if (zopfli_req->err != NULL) {
     v8::Handle<v8::Value> err =
-      v8::Exception::Error(v8::String::New(zopfli_req->err->data(), zopfli_req->err->length()));
+      v8::Exception::Error(NanNew<String>(zopfli_req->err->data(), zopfli_req->err->length()));
     CallErrCallback(zopfli_req->callback->GetFunction(), err);
   } else {
     CallOkCallback(zopfli_req->callback->GetFunction(), zopfli_req->resultdata, zopfli_req->resultsize);
@@ -194,7 +194,7 @@ void CompressBinding::After(uv_work_t *req) {
 inline void
 CompressBinding::CallOkCallback(const v8::Handle<v8::Function>& callback,
                                 const char* data, size_t size) {
-  v8::Handle<v8::Value> err = NanNewLocal<v8::Value>(v8::Null());
+  v8::Handle<v8::Value> err = NanNew<v8::Value>(NanNull());
   v8::Local<v8::Object> res = NanNewBufferHandle((char*)data, size);
   CallCallback(callback, err, res);
 }
@@ -206,10 +206,10 @@ NAN_METHOD(CompressBinding::Async) {
   ZopfliRequest<std::string>* zopfli_req = new ZopfliRequest<std::string>(args);
 
   if(args.Length() == 0 || (args.Length() >= 1 && !args[args.Length()-1]->IsFunction())) {
-    return NanThrowError(Exception::TypeError(String::New("Last argument must be a callback function")));
+    return NanThrowError(Exception::TypeError(NanNew<v8::String>("Last argument must be a callback function")));
   }
 
-  Local<Value> error = NanNewLocal<v8::Value>(ParseArgs(args, zopfli_req->format, zopfli_req->zopfli_options));
+  Local<Value> error = NanNew<v8::Value>(ParseArgs(args, zopfli_req->format, zopfli_req->zopfli_options));
   if (!error->IsNull()) {
     CallErrCallback(v8::Local<v8::Function>::Cast(args[args.Length()-1]), error);
     NanReturnUndefined();
@@ -226,7 +226,7 @@ NAN_METHOD(CompressBinding::Sync) {
   ZopfliFormat format;
   ZopfliOptions zopfli_options;
   ZopfliInitOptions(&zopfli_options);
-  Local<Value> error = NanNewLocal<v8::Value>(ParseArgs(args, format, zopfli_options));
+  Local<Value> error = NanNew<v8::Value>(ParseArgs(args, format, zopfli_options));
   if(!error->IsNull()) {
     ThrowException(error);
     NanReturnUndefined();
@@ -277,13 +277,13 @@ NAN_METHOD(Adler32) {
   NanScope();
 
   if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
-    return NanThrowError(Exception::TypeError(String::New("adler must be an unsigned integer")));
+    return NanThrowError(Exception::TypeError(NanNew<v8::String>("adler must be an unsigned integer")));
   }
 
   unsigned int adler = args[0]->Uint32Value();
 
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
-    return NanThrowError(Exception::TypeError(String::New("data must be a buffer")));
+    return NanThrowError(Exception::TypeError(NanNew<String>("data must be a buffer")));
   }
   Local<Value> inbuffer = args[1];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());

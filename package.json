@@ -19,8 +19,7 @@
     "bindings": "*",
     "buffer-crc32": "~0.2.1",
     "async": "~0.2.9",
-    "lodash": "~2.4.1",
-    "nan": "~0.8.0"
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
     "jshint": "~2.4.0",
