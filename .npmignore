@@ -1,0 +1,10 @@
+.gitignore
+.npmignore
+node_modules
+lib/binding
+build
+test
+configure
+Makefile
+.travis.yml
+examples
