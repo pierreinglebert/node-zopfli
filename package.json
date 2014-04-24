@@ -7,7 +7,7 @@
     "zlib",
     "compress"
   ],
-  "version": "1.1.0",
+  "version": "1.1.1",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
@@ -25,7 +25,6 @@
   },
   "dependencies": {
     "commander": "~2.1.0",
-    "bindings": "*",
     "buffer-crc32": "~0.2.1",
     "async": "~0.2.9",
     "lodash": "~2.4.1",
