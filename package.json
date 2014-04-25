@@ -7,7 +7,7 @@
     "zlib",
     "compress"
   ],
-  "version": "1.1.1",
+  "version": "1.1.2",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
