@@ -3,9 +3,11 @@
   "name": "node-zopfli",
   "description": "Compress files with zopfli algorithm",
   "keywords": [
-    "zopfli", "zlib", "compress"
+    "zopfli",
+    "zlib",
+    "compress"
   ],
-  "version": "1.1.0",
+  "version": "1.1.1",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
@@ -14,13 +16,20 @@
   "engines": {
     "node": ">=0.10"
   },
+  "binary": {
+    "module_name": "zopfli",
+    "module_path": "./lib/binding/{node_abi}-{platform}-{arch}",
+    "remote_path": "./{configuration}",
+    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
+    "host": "https://node-zopfli.s3.amazonaws.com"
+  },
   "dependencies": {
     "commander": "~2.1.0",
-    "bindings": "*",
     "buffer-crc32": "~0.2.1",
     "async": "~0.2.9",
     "lodash": "~2.4.1",
-    "nan": "~0.8.0"
+    "nan": "~0.8.0",
+    "node-pre-gyp": "^0.5.9"
   },
   "devDependencies": {
     "jshint": "~2.4.0",
@@ -35,6 +44,7 @@
     "bin/zopflipng"
   ],
   "scripts": {
+    "install": "node-pre-gyp install --fallback-to-build",
     "test": "make test"
   },
   "config": {
