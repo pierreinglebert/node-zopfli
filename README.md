@@ -35,41 +35,54 @@ To compress a png file
 
 ## Api
 ### Stream (async):
-    var zopfli = require("node-zopfli");
-    fs.createReadStream('file.js')
-      .pipe(zopfli.createGzip(options))
-      .pipe(fs.createWriteStream('file.js.gz'));
+
+```javascript
+var zopfli = require("node-zopfli");
+fs.createReadStream('file.js')
+  .pipe(zopfli.createGzip(options))
+  .pipe(fs.createWriteStream('file.js.gz'));
+```
 
 Instead of zopfli.createGzip, you can also use
 
-    new Zopfli("gzip", options);
-
+```javascript
+new Zopfli("gzip", options);
+```
 
 ### Buffer (async):
-    var zopfli = require("node-zopfli");
-    var input = new Buffer('i want to be compressed');
-    zopfli.deflate(input, options, function(err, deflated) {});
-    zopfli.zlib(input, options, function(err, zlibed) {});
-    zopfli.gzip(input, options, function(err, gziped) {});
+
+```javascript
+var zopfli = require("node-zopfli");
+var input = new Buffer('i want to be compressed');
+zopfli.deflate(input, options, function(err, deflated) {});
+zopfli.zlib(input, options, function(err, zlibed) {});
+zopfli.gzip(input, options, function(err, gziped) {});
+```
 
 ### Buffer (sync):
-    var zopfli = require("node-zopfli");
-    var input = new Buffer('i want to be compressed');
-    var deflated = zopfli.deflateSync(input, options);
-    var zlibed = zopfli.zlibSync(input, options);
-    var gziped = zopfli.gzipSync(input, options);
+
+```javascript
+var zopfli = require("node-zopfli");
+var input = new Buffer('i want to be compressed');
+var deflated = zopfli.deflateSync(input, options);
+var zlibed = zopfli.zlibSync(input, options);
+var gziped = zopfli.gzipSync(input, options);
+```
 
 ### Options
 
 Here are the options with defaults values you can pass to zopfli :
-    {
-      verbose: false,
-      verbose_more: false,
-      numiterations: 15,
-      blocksplitting: true,
-      blocksplittinglast: false,
-      blocksplittingmax: 15
-    }
+
+```javascript  
+{
+  verbose: false,
+  verbose_more: false,
+  numiterations: 15,
+  blocksplitting: true,
+  blocksplittinglast: false,
+  blocksplittingmax: 15
+}
+```
 
 #### numiterations
 Maximum amount of times to rerun forward and backward pass to optimize LZ77 compression cost. Good values: 10, 15 for small files, 5 for files over several MB in size or it will be too slow.
