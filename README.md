@@ -1,16 +1,17 @@
 node-zopfli
 ===========
 
-Bindings for zopfli compressing lib.
+Bindings for [Zopfli](http://en.wikipedia.org/wiki/Zopfli) compressing lib.
+Compress gzip files 5% better than gzip.
 
 [![Build Status](https://secure.travis-ci.org/pierreinglebert/node-zopfli.png)](http://travis-ci.org/pierreinglebert/node-zopfli)
 [![Coverage Status](https://coveralls.io/repos/pierreinglebert/node-zopfli/badge.png?branch=master)](https://coveralls.io/r/pierreinglebert/node-zopfli?branch=master)
 [![Dependency Status](https://gemnasium.com/pierreinglebert/node-zopfli.png)](https://gemnasium.com/pierreinglebert/node-zopfli)
 [![Stories in Ready](https://badge.waffle.io/pierreinglebert/node-zopfli.png)](http://waffle.io/pierreinglebert/node-zopfli)
 
-# Prerequisites
+# Prerequisites for building
 
-* Python 2.7 (for node-gyp)
+* Python 2.7
 * make (unix) or visual studio express (windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
 
 # USAGE
@@ -58,7 +59,9 @@ Instead of zopfli.createGzip, you can also use
     var zlibed = zopfli.zlibSync(input, options);
     var gziped = zopfli.gzipSync(input, options);
 
-### Options (default)
+### Options
+
+Here are the options with defaults values you can pass to zopfli :
     {
       verbose: false,
       verbose_more: false,
@@ -67,6 +70,19 @@ Instead of zopfli.createGzip, you can also use
       blocksplittinglast: false,
       blocksplittingmax: 15
     }
+
+#### numiterations
+Maximum amount of times to rerun forward and backward pass to optimize LZ77 compression cost. Good values: 10, 15 for small files, 5 for files over several MB in size or it will be too slow.
+
+#### blocksplitting
+If true, splits the data in multiple deflate blocks with optimal choice for the block boundaries. Block splitting gives better compression.
+
+#### blocksplittinglast
+If true, chooses the optimal block split points only after doing the iterative LZ77 compression. If false, chooses the block split points first, then does iterative LZ77 on each individual block. Depending on the file, either first or last gives the best compression.
+
+#### blocksplittingmax
+Maximum amount of blocks to split into (0 for unlimited, but this can give extreme results that hurt compression on some files).
+  
 
 #Build from sources
 
