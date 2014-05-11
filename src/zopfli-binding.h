@@ -5,6 +5,39 @@
 #include <string>
 #include "nan.h"
 
+#define _THROW(type, errmsg) \
+  NanThrowError(_NAN_ERROR(type, errmsg));
+
+NAN_INLINE void GetOptionIfExists(
+    v8::Local<v8::Object> optionsObj
+  , v8::Handle<v8::String> opt
+  , bool* def
+) {
+  if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
+    *def = optionsObj->Get(opt)->BooleanValue();
+  }
+}
+
+NAN_INLINE void GetOptionIfExists(
+    v8::Local<v8::Object> optionsObj
+  , v8::Handle<v8::String> opt
+  , uint32_t* def
+) {
+  if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
+    *def = optionsObj->Get(opt)->Uint32Value();
+  }
+}
+
+NAN_INLINE void GetOptionIfExists(
+    v8::Local<v8::Object> optionsObj
+  , v8::Handle<v8::String> opt
+  , int32_t* def
+) {
+  if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
+    *def = optionsObj->Get(opt)->Int32Value();
+  }
+}
+
 namespace nodezopfli {
 
 /*
@@ -21,26 +54,15 @@ template<class T> struct ZopfliRequest {
   const std::string* err;
 };
 
-class Base {
- protected:
-  static void CallErrCallback(const v8::Handle<v8::Function>&,
-                              const v8::Handle<v8::Value>&);
-  static void CallCallback(const v8::Handle<v8::Function>&,
-                           const v8::Handle<v8::Value>&,
-                           const v8::Handle<v8::Value>&);
-};
 
-class CompressBinding : Base {
+class CompressBinding : public NanAsyncWorker {
  protected:
   static void After(uv_work_t*);
-  static void CallOkCallback(const v8::Handle<v8::Function>&,
+  static void CallOkCallback(NanCallback*,
                              const char* data, size_t size);
  public:
   static NAN_METHOD(Async);
   static NAN_METHOD(Sync);
-
- private:
-  static void AsyncOperation(uv_work_t*);
 };
 
 }
