@@ -36,8 +36,8 @@ describe('Zopfli buffer async',function() {
     var buffer = fs.readFileSync('test/fixtures/' + files[0]);
     assert.throw(function() {
         zopfli.deflate(buffer);
-      }, 
-      Error, 
+      },
+      Error,
       "Last argument must be a callback function"
     );
   });

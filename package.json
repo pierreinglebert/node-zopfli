@@ -28,8 +28,8 @@
     "buffer-crc32": "~0.2.1",
     "async": "~0.7.0",
     "lodash": "~2.4.1",
-    "nan": "~0.8.0",
-    "node-pre-gyp": "^0.5.9"
+    "nan": "~1.0.0",
+    "node-pre-gyp": "~0.5.11"
   },
   "devDependencies": {
     "jshint": "~2.5.0",
@@ -44,7 +44,7 @@
     "bin/zopflipng"
   ],
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "git submodule update --init && ./node_modules/.bin/node-pre-gyp install --fallback-to-build --build-from-source",
     "test": "make test"
   },
   "config": {

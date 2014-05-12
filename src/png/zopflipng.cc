@@ -7,44 +7,47 @@
 #include "lodepng/lodepng.h"
 #include "zopflipng_lib.h"
 
+#define _THROW(type, errmsg) \
+  NanThrowError(_NAN_ERROR(type, errmsg));
+
 using namespace v8;
 
 bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) {
-  
   Handle<Value> fieldValue;
 
   // Allow altering hidden colors of fully transparent pixels
-  fieldValue = options->Get(String::New("lossy_transparent"));
+  fieldValue = options->Get(NanSymbol("lossy_transparent"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       png_options.lossy_transparent = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'lossy_transparent'")));
+     _THROW(Exception::TypeError, "Wrong type for option 'lossy_transparent'");
       return false;
     }
   }
 
   // Convert 16-bit per channel images to 8-bit per channel
-  fieldValue = options->Get(String::New("lossy_8bit"));
+  fieldValue = options->Get(NanSymbol("lossy_8bit"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       png_options.lossy_8bit = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'lossy_8bit'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'lossy_8bit'");
       return false;
     }
   }
 
   // Filter strategies to try
   //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
-  fieldValue = options->Get(String::New("filter_strategies"));
+  fieldValue = options->Get(NanSymbol("filter_strategies"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsArray()) {
       Handle<Array> filter_strategies = Handle<Array>::Cast(fieldValue);
       for (uint32_t i = 0; i < filter_strategies->Length(); i++) {
-        std::string strStrategy(*String::AsciiValue(filter_strategies->Get(Integer::New(i))->ToString()));
+        size_t count;
+        std::string strStrategy(NanCString(filter_strategies->Get(i)->ToString(), &count));
         ZopfliPNGFilterStrategy strategy = kStrategyZero;
         if(strStrategy.compare("zero") == 0) { strategy = kStrategyZero; }
         else if(strStrategy.compare("one") == 0) { strategy = kStrategyOne; }
@@ -56,99 +59,100 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) 
         else if(strStrategy.compare("predefined") == 0) { strategy = kStrategyPredefined; }
         else if(strStrategy.compare("bruteforce") == 0) { strategy = kStrategyBruteForce; }
         else {
-          ThrowException(Exception::TypeError(String::Concat(String::New("Wrong strategy : "), String::New(strStrategy.c_str()))));
+          _THROW(Exception::TypeError, (std::string("Wrong strategy : ") + strStrategy).c_str());
           return false;
         }
         png_options.filter_strategies.push_back(strategy);
       }
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'filter_strategies'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'filter_strategies'");
       return false;
     }
   }
 
-  
   // Automatically choose filter strategy using less good compression
-  fieldValue = options->Get(String::New("auto_filter_strategy"));
+  fieldValue = options->Get(NanSymbol("auto_filter_strategy"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       png_options.auto_filter_strategy = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'auto_filter_strategy'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'auto_filter_strategy'");
       return false;
     }
   }
 
   // PNG chunks to keep
   // chunks to literally copy over from the original PNG to the resulting one
-  fieldValue = options->Get(String::New("keepchunks"));
+  fieldValue = options->Get(NanSymbol("keepchunks"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsArray()) {
       Handle<Array> keepchunks = Handle<Array>::Cast(fieldValue);
       for (uint32_t i = 0; i < keepchunks->Length(); i++) {
-        String::AsciiValue s(keepchunks->Get(Integer::New(i))->ToString());
-        png_options.keepchunks.push_back(std::string(*s));
+        size_t count;
+        // String::AsciiValue s(keepchunks->Get(Integer::New(i))->ToString());
+        png_options.keepchunks.push_back(std::string(NanCString(keepchunks->Get(i)->ToString(), &count)));
       }
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'keepchunks'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'keepchunks'");
       return false;
     }
   }
 
   // Use Zopfli deflate compression
-  fieldValue = options->Get(String::New("use_zopfli"));
+  fieldValue = options->Get(NanSymbol("use_zopfli"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsBoolean()) {
       png_options.use_zopfli = fieldValue->ToBoolean()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'use_zopfli'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'use_zopfli'");
       return false;
     }
   }
 
   // Zopfli number of iterations
-  fieldValue = options->Get(String::New("num_iterations"));
+  fieldValue = options->Get(NanSymbol("num_iterations"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsInt32()) {
       png_options.num_iterations = fieldValue->ToInt32()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'num_iterations'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'num_iterations'");
       return false;
     }
   }
 
   // Zopfli number of iterations on images > 200ko
-  fieldValue = options->Get(String::New("num_iterations_large"));
+  fieldValue = options->Get(NanSymbol("num_iterations_large"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsInt32()) {
       png_options.num_iterations_large = fieldValue->ToInt32()->Value();
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'num_iterations_large'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'num_iterations_large'");
       return false;
     }
   }
 
   // Split chunk strategy none, first, last, both
-  fieldValue = options->Get(String::New("block_split_strategy"));
+  fieldValue = options->Get(NanSymbol("block_split_strategy"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsString()) {
-      std::string strStrategy(*String::AsciiValue(fieldValue->ToString()));
+      size_t count;
+      std::string strStrategy(NanCString(fieldValue->ToString(), &count));
       if(strStrategy.compare("none") == 0) { png_options.block_split_strategy = 0; }
       else if(strStrategy.compare("first") == 0) { png_options.block_split_strategy = 1; }
       else if(strStrategy.compare("last") == 0) { png_options.block_split_strategy = 2; }
       else if(strStrategy.compare("both") == 0) { png_options.block_split_strategy = 3; }
       else {
-        ThrowException(Exception::TypeError(String::New("Wrong value for option 'block_split_strategy'")));
+        _THROW(Exception::TypeError, "Wrong value for option 'block_split_strategy'");
       }
     } else {
       //Wrong
-      ThrowException(Exception::TypeError(String::New("Wrong type for option 'block_split_strategy'")));
+      _THROW(Exception::TypeError, "Wrong type for option 'block_split_strategy'");
       return false;
     }
   }
@@ -160,16 +164,17 @@ NAN_METHOD(PNGDeflate) {
   NanScope();
   
   if(args.Length() < 1 || !args[0]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("First argument must be a string")));
+    _THROW(Exception::TypeError, "First argument must be a string");
     NanReturnUndefined();
   }
-  std::string imageName(*String::AsciiValue(args[0]->ToString()));
+  size_t count;
+  std::string imageName(NanCString(args[0]->ToString(), &count));
 
   if(args.Length() < 2 || !args[1]->IsString()) {
-    ThrowException(Exception::TypeError(String::New("First argument must be a string")));
+    _THROW(Exception::TypeError, "First argument must be a string");
     NanReturnUndefined();
   }
-  std::string out_filename(*String::AsciiValue(args[1]->ToString()));
+  std::string out_filename(NanCString(args[1]->ToString(), &count));
 
   ZopfliPNGOptions png_options;
   
@@ -203,5 +208,5 @@ NAN_METHOD(PNGDeflate) {
       lodepng::save_file(resultpng, out_filename);
     }
   }
-  NanReturnValue(Integer::New(error));
+  NanReturnValue(NanNew<Integer>(error));
 }
