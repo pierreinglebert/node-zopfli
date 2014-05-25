@@ -73,7 +73,7 @@ var gziped = zopfli.gzipSync(input, options);
 
 Here are the options with defaults values you can pass to zopfli :
 
-```javascript  
+```javascript
 {
   verbose: false,
   verbose_more: false,
@@ -95,15 +95,14 @@ If true, chooses the optimal block split points only after doing the iterative L
 
 #### blocksplittingmax
 Maximum amount of blocks to split into (0 for unlimited, but this can give extreme results that hurt compression on some files).
-  
+
 
 #Build from sources
 
-    git clone --recursive https://github.com/pierreinglebert/node-zopfli
-    node-gyp configure
-    node-gyp build
+    git clone https://github.com/pierreinglebert/node-zopfli
+    npm install
 
 # Tests
 mocha is used for tests, you can run them with :
-    
+
     npm test

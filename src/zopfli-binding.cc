@@ -1,20 +1,14 @@
 #include "zopfli.h"
 
-#include <node_buffer.h>
-#include <node_version.h>
-
 #include <string.h>  // memcpy
-
 #include <string>
 
 #include "./zopfli-binding.h"
 
 namespace nodezopfli {
 
-
 using namespace v8;
 using namespace node;
-
 
 NAN_INLINE _NAN_METHOD_RETURN_TYPE ParseArgs(_NAN_METHOD_ARGS, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
   ZopfliInitOptions(&zopfli_options);
@@ -45,34 +39,34 @@ NAN_INLINE _NAN_METHOD_RETURN_TYPE ParseArgs(_NAN_METHOD_ARGS, ZopfliFormat& for
     Local<Value> fieldValue;
 
     // Whether to print output
-    GetOptionIfExists(options, NanSymbol("verbose"), &zopfli_options.verbose);
+    GetOptionIfExists(options, NanNew<String>("verbose"), &zopfli_options.verbose);
     // Whether to print more detailed output
-    GetOptionIfExists(options, NanSymbol("verbose_more"), &zopfli_options.verbose_more);
+    GetOptionIfExists(options, NanNew<String>("verbose_more"), &zopfli_options.verbose_more);
     /*
     Maximum amount of times to rerun forward and backward pass to optimize LZ77
     compression cost. Good values: 10, 15 for small files, 5 for files over
     several MB in size or it will be too slow.
     */
-    GetOptionIfExists(options, NanSymbol("numiterations"), &zopfli_options.numiterations);
+    GetOptionIfExists(options, NanNew<String>("numiterations"), &zopfli_options.numiterations);
     /*
     If true, chooses the optimal block split points only after doing the iterative
     LZ77 compression. If false, chooses the block split points first, then does
     iterative LZ77 on each individual block. Depending on the file, either first
     or last gives the best compression. Default: false (0).
     */
-    GetOptionIfExists(options, NanSymbol("blocksplitting"), &zopfli_options.blocksplitting);
+    GetOptionIfExists(options, NanNew<String>("blocksplitting"), &zopfli_options.blocksplitting);
     /*
     If true, chooses the optimal block split points only after doing the iterative
     LZ77 compression. If false, chooses the block split points first, then does
     iterative LZ77 on each individual block. Depending on the file, either first
     or last gives the best compression. Default: false (0).
     */
-    GetOptionIfExists(options, NanSymbol("blocksplittinglast"), &zopfli_options.blocksplittinglast);
+    GetOptionIfExists(options, NanNew<String>("blocksplittinglast"), &zopfli_options.blocksplittinglast);
     /*
     Maximum amount of blocks to split into (0 for unlimited, but this can give
     extreme results that hurt compression on some files). Default value: 15.
     */
-    GetOptionIfExists(options, NanSymbol("blocksplittingmax"), &zopfli_options.blocksplittingmax);
+    GetOptionIfExists(options, NanNew<String>("blocksplittingmax"), &zopfli_options.blocksplittingmax);
   } else {
     _THROW(Exception::TypeError, "Third argument must be an object");
   }
@@ -185,13 +179,13 @@ NAN_METHOD(Adler32) {
   NanScope();
 
   if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
-    return NanThrowError(Exception::TypeError(NanNew<String>("adler must be an unsigned integer")));
+    return NanThrowError(_NAN_ERROR(Exception::TypeError, "adler must be an unsigned integer"));
   }
 
   unsigned int adler = args[0]->Uint32Value();
 
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
-    return NanThrowError(Exception::TypeError(NanNew<String>("data must be a buffer")));
+    return NanThrowError(_NAN_ERROR(Exception::TypeError, "data must be a buffer"));
   }
   Local<Value> inbuffer = args[1];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
