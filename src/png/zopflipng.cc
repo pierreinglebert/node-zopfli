@@ -79,24 +79,24 @@ NAN_INLINE bool GetOptionIfType(
 
 using namespace v8;
 
-bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) {
+bool parseOptions(const Local<Object>& options, ZopfliPNGOptions& png_options) {
   Handle<Value> fieldValue;
 
   // Allow altering hidden colors of fully transparent pixels
-  if(!GetOptionIfType(options, NanSymbol("lossy_transparent"), &png_options.lossy_transparent)) {
+  if(!GetOptionIfType(options, NanNew<String>("lossy_transparent"), &png_options.lossy_transparent)) {
     _THROW(Exception::TypeError, "Wrong type for option 'lossy_transparent'");
     return false;
   }
 
   // Convert 16-bit per channel images to 8-bit per channel
-  if(!GetOptionIfType(options, NanSymbol("lossy_8bit"), &png_options.lossy_8bit)) {
+  if(!GetOptionIfType(options, NanNew<String>("lossy_8bit"), &png_options.lossy_8bit)) {
     _THROW(Exception::TypeError, "Wrong type for option 'lossy_8bit'");
     return false;
   }
 
   // Filter strategies to try
   //"zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute"
-  fieldValue = options->Get(NanSymbol("filter_strategies"));
+  fieldValue = options->Get(NanNew<String>("filter_strategies"));
   if(!fieldValue->IsUndefined() && !fieldValue->IsNull()) {
     if(fieldValue->IsArray()) {
       Handle<Array> filter_strategies = Handle<Array>::Cast(fieldValue);
@@ -127,33 +127,33 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) 
   }
 
   // Automatically choose filter strategy using less good compression
-  if(!GetOptionIfType(options, NanSymbol("auto_filter_strategy"), &png_options.auto_filter_strategy)) {
+  if(!GetOptionIfType(options, NanNew<String>("auto_filter_strategy"), &png_options.auto_filter_strategy)) {
     _THROW(Exception::TypeError, "Wrong type for option 'auto_filter_strategy'");
     return false;
   }
 
   // PNG chunks to keep
   // chunks to literally copy over from the original PNG to the resulting one
-  if(!GetOptionIfType(options, NanSymbol("use_zopfli"), &png_options.use_zopfli)) {
+  if(!GetOptionIfType(options, NanNew<String>("use_zopfli"), &png_options.use_zopfli)) {
     _THROW(Exception::TypeError, "Wrong type for option 'use_zopfli'");
     return false;
   }
 
   // Zopfli number of iterations
-  if(!GetOptionIfType(options, NanSymbol("num_iterations"), &png_options.num_iterations)) {
+  if(!GetOptionIfType(options, NanNew<String>("num_iterations"), &png_options.num_iterations)) {
     _THROW(Exception::TypeError, "Wrong type for option 'num_iterations'");
     return false;
   }
 
   // Zopfli number of iterations on images > 200ko
-  if(!GetOptionIfType(options, NanSymbol("num_iterations_large"), &png_options.num_iterations_large)) {
+  if(!GetOptionIfType(options, NanNew<String>("num_iterations_large"), &png_options.num_iterations_large)) {
     _THROW(Exception::TypeError, "Wrong type for option 'num_iterations_large'");
     return false;
   }
 
   // Split chunk strategy none, first, last, both
   std::string strStrategy;
-  if(GetOptionIfType(options, NanSymbol("block_split_strategy"), &strStrategy)) {
+  if(GetOptionIfType(options, NanNew<String>("block_split_strategy"), &strStrategy)) {
     if(strStrategy.compare("none") == 0) { png_options.block_split_strategy = 0; }
     else if(strStrategy.compare("first") == 0) { png_options.block_split_strategy = 1; }
     else if(strStrategy.compare("last") == 0) { png_options.block_split_strategy = 2; }
@@ -173,7 +173,7 @@ bool parseOptions(const Handle<Object>& options, ZopfliPNGOptions& png_options) 
 
 NAN_METHOD(PNGDeflate) {
   NanScope();
-  
+
   if(args.Length() < 1 || !args[0]->IsString()) {
     _THROW(Exception::TypeError, "First argument must be a string");
     NanReturnUndefined();
@@ -188,9 +188,9 @@ NAN_METHOD(PNGDeflate) {
   std::string out_filename(NanCString(args[1]->ToString(), &count));
 
   ZopfliPNGOptions png_options;
-  
+
   if(args.Length() >= 2 && args[2]->IsObject()) {
-    Handle<Object> options = Handle<Object>::Cast(args[2]);
+    Local<Object> options = args[2]->ToObject();
     if(!parseOptions(options, png_options)) {
       NanReturnUndefined();
     }

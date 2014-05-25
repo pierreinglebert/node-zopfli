@@ -9,8 +9,8 @@
   NanThrowError(_NAN_ERROR(type, errmsg));
 
 NAN_INLINE void GetOptionIfExists(
-    v8::Local<v8::Object> optionsObj
-  , v8::Handle<v8::String> opt
+    const v8::Local<v8::Object> optionsObj
+  , const v8::Handle<v8::String> opt
   , bool* def
 ) {
   if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
@@ -19,8 +19,8 @@ NAN_INLINE void GetOptionIfExists(
 }
 
 NAN_INLINE void GetOptionIfExists(
-    v8::Local<v8::Object> optionsObj
-  , v8::Handle<v8::String> opt
+    const v8::Local<v8::Object> optionsObj
+  , const v8::Handle<v8::String> opt
   , uint32_t* def
 ) {
   if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
@@ -29,8 +29,8 @@ NAN_INLINE void GetOptionIfExists(
 }
 
 NAN_INLINE void GetOptionIfExists(
-    v8::Local<v8::Object> optionsObj
-  , v8::Handle<v8::String> opt
+    const v8::Local<v8::Object> optionsObj
+  , const v8::Handle<v8::String> opt
   , int32_t* def
 ) {
   if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
