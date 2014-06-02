@@ -49,7 +49,7 @@
     "bin/zopflipng"
   ],
   "scripts": {
-    "install": "git submodule update --init && node-pre-gyp install --fallback-to-build --build-from-source",
+    "install": "node-pre-gyp install --fallback-to-build --build-from-source",
     "test": "make test"
   },
   "config": {
