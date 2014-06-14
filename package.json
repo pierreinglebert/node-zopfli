@@ -37,12 +37,13 @@
     "node-pre-gyp": "~0.5.11"
   },
   "devDependencies": {
-    "jshint": "~2.5.0",
+    "blanket": "~1.1.5",
     "chai": "~1.9.0",
-    "mocha": "~1.19.0",
     "coveralls": "~2.10.0",
+    "jshint": "~2.5.0",
+    "mocha": "~1.19.0",
     "mocha-lcov-reporter": "0.0.1",
-    "blanket": "~1.1.5"
+    "randomstring": "^1.0.3"
   },
   "bin": [
     "bin/zopfli",
