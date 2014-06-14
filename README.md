@@ -4,7 +4,7 @@ node-zopfli
 Bindings for [Zopfli](http://en.wikipedia.org/wiki/Zopfli) compressing lib.
 Compress gzip files 5% better than gzip.
 
-It is considerably slower than gzip (~100x) so you may want to use it for static content or for cached resources only.
+It is considerably slower than gzip (~100x) so you may want to use it only for static content and cached resources.
 
 [![Build Status](https://secure.travis-ci.org/pierreinglebert/node-zopfli.png)](http://travis-ci.org/pierreinglebert/node-zopfli)
 [![Coverage Status](https://coveralls.io/repos/pierreinglebert/node-zopfli/badge.png?branch=master)](https://coveralls.io/r/pierreinglebert/node-zopfli?branch=master)
