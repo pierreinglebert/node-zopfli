@@ -51,10 +51,13 @@ describe('Zopfli stream',function() {
   before(function(done) {
     if(fs.existsSync('tmp')) rmdir('tmp');
     fs.mkdirSync('tmp');
+    randData = require('randomstring').generate(1 * 1024 * 1024);
+    fs.writeFileSync('test/fixtures/big');
     done();
   });
   after(function(done) {
     rmdir('tmp');
+    fs.unlinkSync('test/fixtures/big');
     done();
   });
   describe('deflate',function() {
