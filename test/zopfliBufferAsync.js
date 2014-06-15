@@ -31,15 +31,16 @@ var testBufferAsync = function(deflate, inflate, done) {
 };
 
 describe('Zopfli buffer async',function() {
-  it('should throw an exception if no callback is given', function() {
-    var files = fs.readdirSync('test/fixtures');
-    var buffer = fs.readFileSync('test/fixtures/' + files[0]);
-    assert.throw(function() {
-        zopfli.deflate(buffer);
-      },
-      Error,
-      "Last argument must be a callback function"
-    );
+  it('should return a promise if no callback is given', function(done) {
+    var buffer = fs.readFileSync('test/fixtures/test.js');
+    zopfli.deflate(buffer).then(function(result) {
+      zlib.inflateRaw(result, function(err, result) {
+        if(!err) {
+          assert.equal(result.toString(), buffer.toString());
+        }
+        done(err);
+      });
+    });
   });
   describe('deflate',function() {
     it('should deflate using buffer by zopfli and inflated by node zlib', function(done){

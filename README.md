@@ -19,7 +19,7 @@ It is considerably slower than gzip (~100x) so you may want to use it only for s
 # USAGE
 
 ## Install
-    
+
     npm install node-zopfli
 
 or if you want zopfli binary globally
@@ -28,14 +28,14 @@ or if you want zopfli binary globally
 
 ## Binary (from command line)
 To gzip a file
-    
+
     zopfli file.txt
 
 To compress a png file
-    
+
     zopflipng file.png out.png
 
-## Api
+## Usage examples
 ### Stream (async):
 
 ```javascript
@@ -70,6 +70,22 @@ var deflated = zopfli.deflateSync(input, options);
 var zlibed = zopfli.zlibSync(input, options);
 var gziped = zopfli.gzipSync(input, options);
 ```
+
+## Api
+
+### compress(input, format, [options, callback])
+
+`input` is the input buffer
+
+`format` can be one of `deflate`, `zlib` and `gzip`
+
+`callback`, if present, gets two arguments `(err, buffer)` where `err` is an error object, if any, and `buffer` is the resultant compressed data.
+
+If no callback is provided, it returns an A+ Promise.
+
+#### aliases
+
+`deflate`, `zlib` and `gzip` methods are aliases on `compress` without `format` argument.
 
 ### Options
 
