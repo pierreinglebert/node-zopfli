@@ -12,7 +12,7 @@
     "gzip",
     "deflate"
   ],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
@@ -30,11 +30,11 @@
   },
   "dependencies": {
     "async": "~0.9.0",
-    "bluebird": "^2.1.1",
+    "bluebird": "~2.3.1",
     "buffer-crc32": "~0.2.1",
-    "commander": "~2.2.0",
+    "commander": "~2.5.0",
     "lodash": "~2.4.1",
-    "nan": "~1.2.0",
+    "nan": "~1.4.0",
     "node-pre-gyp": "~0.5.11"
   },
   "devDependencies": {
