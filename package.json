@@ -12,7 +12,7 @@
     "gzip",
     "deflate"
   ],
-  "version": "1.2.5",
+  "version": "1.2.6",
   "homepage": "https://github.com/pierreinglebert/node-zopfli",
   "repository": {
     "type": "git",
