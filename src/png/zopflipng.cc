@@ -1,14 +1,10 @@
-#include <node.h>
 #include <v8.h>
-
-#include <iostream>
 #include "nan.h"
 
 #include "lodepng/lodepng.h"
 #include "zopflipng_lib.h"
 
 using namespace v8;
-using namespace node;
 
 NAN_INLINE bool GetOptionIfType(
     v8::Local<v8::Object> optionsObj
@@ -50,7 +46,7 @@ NAN_INLINE bool GetOptionIfType(
   if (!optionsObj.IsEmpty() && optionsObj->Has(opt)) {
     Local<Value> optval = optionsObj->Get(opt);
     if(optval->IsString()) {
-      *def = std::string(NanCString(optval, NULL));
+      *def = std::string(*NanUtf8String(optval));
     } else {
       return false;
     }
@@ -101,8 +97,7 @@ bool parseOptions(const Local<Object>& options, ZopfliPNGOptions& png_options) {
     if(fieldValue->IsArray()) {
       Handle<Array> filter_strategies = Handle<Array>::Cast(fieldValue);
       for (uint32_t i = 0; i < filter_strategies->Length(); i++) {
-        size_t count;
-        std::string strStrategy(NanCString(filter_strategies->Get(i)->ToString(), &count));
+        std::string strStrategy(*NanUtf8String(filter_strategies->Get(i)->ToString()));
         ZopfliPNGFilterStrategy strategy = kStrategyZero;
         if(strStrategy.compare("zero") == 0) { strategy = kStrategyZero; }
         else if(strStrategy.compare("one") == 0) { strategy = kStrategyOne; }
@@ -178,14 +173,13 @@ NAN_METHOD(PNGDeflate) {
     _THROW(Exception::TypeError, "First argument must be a string");
     NanReturnUndefined();
   }
-  size_t count;
-  std::string imageName(NanCString(args[0]->ToString(), &count));
+  std::string imageName(*NanUtf8String(args[0]->ToString()));
 
   if(args.Length() < 2 || !args[1]->IsString()) {
     _THROW(Exception::TypeError, "First argument must be a string");
     NanReturnUndefined();
   }
-  std::string out_filename(NanCString(args[1]->ToString(), &count));
+  std::string out_filename(*NanUtf8String(args[1]->ToString()));
 
   ZopfliPNGOptions png_options;
 

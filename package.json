@@ -29,21 +29,20 @@
     "host": "https://node-zopfli.s3.amazonaws.com"
   },
   "dependencies": {
-    "bluebird": "~2.9.1",
-    "buffer-crc32": "~0.2.1",
-    "commander": "~2.7.0",
+    "async": "^0.9.0",
+    "bluebird": "^2.9.14",
+    "commander": "^2.7.1",
     "defaults": "^1.0.2",
-    "nan": "~1.6.0",
-    "node-pre-gyp": "~0.6.4"
+    "nan": "^1.7.0",
+    "node-pre-gyp": "^0.6.4"
   },
   "devDependencies": {
-    "async": "~0.9.0",
-    "blanket": "~1.1.5",
-    "chai": "~2.1.0",
-    "coveralls": "~2.11.0",
-    "jshint": "~2.6.0",
-    "mocha": "~1.19.0",
-    "mocha-lcov-reporter": "~0.0.1",
+    "blanket": "^1.1.6",
+    "chai": "^2.1.2",
+    "coveralls": "^2.11.2",
+    "jshint": "^2.6.3",
+    "mocha": "^2.2.1",
+    "mocha-lcov-reporter": "0.0.2",
     "randomstring": "^1.0.3"
   },
   "bin": [
