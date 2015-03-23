@@ -117,7 +117,8 @@ Maximum amount of blocks to split into (0 for unlimited, but this can give extre
 
 #Build from sources
 
-    git clone https://github.com/pierreinglebert/node-zopfli
+    git clone https://github.com/pierreinglebert/node-zopfli --recursive
+    cd node-zopfli
     npm install
 
 # Tests
