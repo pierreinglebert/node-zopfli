@@ -37,12 +37,11 @@
   },
   "devDependencies": {
     "async": "^0.9.0",
-    "blanket": "^1.1.6",
     "chai": "^2.1.2",
     "coveralls": "^2.11.2",
+    "istanbul": "^0.3.13",
     "jshint": "^2.6.3",
     "mocha": "^2.2.1",
-    "mocha-lcov-reporter": "0.0.2",
     "randomstring": "^1.0.3"
   },
   "bin": [
@@ -52,12 +51,6 @@
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build --build-from-source",
     "test": "make test"
-  },
-  "config": {
-    "blanket": {
-      "pattern": "lib",
-      "data-cover-never": "node_modules"
-    }
   },
   "main": "lib/zopfli.js",
   "gypfile": true

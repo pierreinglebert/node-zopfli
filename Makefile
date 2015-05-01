@@ -1,21 +1,21 @@
 REPORTER = spec
 test:
 	$(MAKE) lint
-	@NODE_ENV=test ./node_modules/.bin/mocha -b --require blanket --reporter $(REPORTER)
+	@NODE_ENV=test ./node_modules/.bin/mocha -b --reporter $(REPORTER) test
 
 lint:
-	./node_modules/.bin/jshint ./lib ./test
+	./node_modules/.bin/jshint ./lib ./test ./index.js
 
 test-cov:
-	$(MAKE) test REPORTER=spec
-	$(MAKE) test REPORTER=html-cov 1> coverage.html
+	./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -R spec test
 
 test-coveralls:
-	$(MAKE) test REPORTER=spec
-	$(MAKE) test REPORTER=mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js --verbose
+	./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -R spec test
+	cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js || true
 	rm -rf lib-cov
 
 clean:
 	rm -rf ./lib/binding
+	rm -rf ./coverage
 
 .PHONY: test
