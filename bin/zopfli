@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
+'use strict';
+
 var program = require('commander');
 var fs = require('fs');
 var async = require('async');
 var zopfli = require('../lib/zopfli');
 
 program
-  .version('1.0.3')
+  .version(require('../package.json').version)
   .usage('[options] [files...]')
   .option('--deflate', 'raw deflate (without container)')
   .option('--zlib', 'deflate using zlib container')
@@ -28,12 +30,21 @@ var options = {
 if(program.iterations) options.numiterations = parseInt(program.iterations);
 if(program.verbose) options.verbose = program.verbose;
 
-var method = zopfli.createGzip, extension = 'gz';
-if (program.deflate) method = zopfli.createDeflate, extension = 'zlib';
-if (program.zlib) method = zopfli.createZlib, extension = 'deflate';
-if (program.ext) extension = program.ext;
+var method = zopfli.createGzip;
+var extension = 'gz';
+if (program.deflate) {
+  method = zopfli.createDeflate;
+  extension = 'zlib';
+}
+if (program.zlib) {
+  method = zopfli.createZlib;
+  extension = 'deflate';
+}
+if (program.ext) {
+  extension = program.ext;
+}
 
-if(program.args.length == 0) {
+if(program.args.length === 0) {
   program.help();
 } else {
   async.eachSeries(
@@ -47,7 +58,7 @@ if(program.args.length == 0) {
         .on('error', next)
         .on('finish', function() {
           next();
-        })
+        });
     },
     function(err) {
       if(err) throw err;

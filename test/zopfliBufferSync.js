@@ -1,5 +1,7 @@
-var chai = require("chai");
-var fs = require("fs");
+'use strict';
+
+var chai = require('chai');
+var fs = require('fs');
 var zlib = require('zlib');
 var async = require('async');
 var zopfli = require('../lib/zopfli');

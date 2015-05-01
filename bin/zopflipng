@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
+'use strict';
+
 var program = require('commander');
 var fs = require('fs');
-var zopfli = require("../build/Release/zopfli");
+var zopfli = require('../build/Release/zopfli');
 
 program
-  .version('1.0.3')
+  .version(require('../package.json').version)
   .usage('[options] file destfile')
   .option('--lossy_transparent', 'Allow altering hidden colors of fully transparent pixels')
   .option('--lossy', 'Convert 16-bit per channel images to 8-bit per channel')
@@ -24,18 +26,18 @@ var options = {
   use_zopfli: true,
   num_iterations: 15,
   num_iterations_large: 5,
-  block_split_strategy: "both" //Split chunk strategy none, first, last, both
+  block_split_strategy: 'both' //Split chunk strategy none, first, last, both
 };
 
-if(program.lossy_transparent) options.lossy_transparent = true;
-if(program.lossy) options.lossy_8bit = true;
-if(program.filter_strategies) options.filter_strategies = []; //TODO
-if(program.keepchunks) options.keepchunks = []; //TODO
-if(program.iterations) options.num_iterations = program.iterations;
-if(program.iterations_large) options.num_iterations_large = program.iterations_large;
+options.lossy_transparent = !!program.lossy_transparent;
+options.lossy_8bit = !!program.lossy;
+// if(program.filter_strategies) options.filter_strategies = []; //TODO
+// if(program.keepchunks) options.keepchunks = []; //TODO
+options.num_iterations = program.iterations || options.num_iterations;
+options.num_iterations_large = program.iterations_large || options.num_iterations_large;
 
 if(fs.existsSync(program.args[0])) {
   zopfli.pngcompress(program.args[0], program.args[1], options);
 } else {
-  console.log("File " + program.args[0] + " doesnt exist");
+  console.log('File ' + program.args[0] + ' doesnt exist');
 }
