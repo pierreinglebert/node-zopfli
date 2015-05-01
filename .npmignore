@@ -2,7 +2,7 @@
 .jshintignore
 .npmignore
 .travis.yml
-Makefile
+make.js
 build/
 examples/
 lib/binding/
