@@ -1,79 +1,89 @@
-node-zopfli
-===========
+# node-zopfli
 
-Bindings for [Zopfli](http://en.wikipedia.org/wiki/Zopfli) compressing lib.
-Compress gzip files 5% better than gzip.
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+[![Dependency Status][dep-image]][dep-url]
+[![devDependency Status][devDep-image]][devDep-url]
+[![Stories in Ready][waffle-image]][waffle-url]
+
+Bindings for [Zopfli](https://en.wikipedia.org/wiki/Zopfli) compressing library.
+Compress gzip files 5% better compared to gzip.
 
 It is considerably slower than gzip (~100x) so you may want to use it only for static content and cached resources.
 
-[![Build Status](https://secure.travis-ci.org/pierreinglebert/node-zopfli.png)](http://travis-ci.org/pierreinglebert/node-zopfli)
-[![Coverage Status](https://coveralls.io/repos/pierreinglebert/node-zopfli/badge.png?branch=master)](https://coveralls.io/r/pierreinglebert/node-zopfli?branch=master)
-[![Dependency Status](https://gemnasium.com/pierreinglebert/node-zopfli.png)](https://gemnasium.com/pierreinglebert/node-zopfli)
-[![Stories in Ready](https://badge.waffle.io/pierreinglebert/node-zopfli.png)](http://waffle.io/pierreinglebert/node-zopfli)
 
-# Prerequisites for building
+## Prerequisites for building
 
 * Python 2.7
-* make (unix) or visual studio express (windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
+* make (unix) or Visual Studio Express (Windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
 
-# USAGE
+## Usage
 
-## Install
+### Install
 
-    npm install node-zopfli
+```shell
+npm install node-zopfli
+```
 
 or if you want zopfli binary globally
 
-    npm install -g node-zopfli
+```shell
+npm install -g node-zopfli
+```
 
-## Binary (from command line)
+### Binary (from command line)
 To gzip a file
 
-    zopfli file.txt
+```shell
+zopfli file.txt
+```
 
 To compress a png file
 
-    zopflipng file.png out.png
+```shell
+zopflipng file.png out.png
+```
 
-## Usage examples
-### Stream (async):
+### Usage examples
+#### Stream (async):
 
-```javascript
-var zopfli = require("node-zopfli");
+```js
+var zopfli = require('node-zopfli');
 fs.createReadStream('file.js')
   .pipe(zopfli.createGzip(options))
   .pipe(fs.createWriteStream('file.js.gz'));
 ```
 
-Instead of zopfli.createGzip, you can also use
+Instead of `zopfli.createGzip`, you can also use
 
-```javascript
-new Zopfli("gzip", options);
+```js
+new Zopfli('gzip', options);
 ```
 
-### Buffer (async):
+#### Buffer (async):
 
-```javascript
-var zopfli = require("node-zopfli");
-var input = new Buffer('i want to be compressed');
+```js
+var zopfli = require('node-zopfli');
+var input = new Buffer('I want to be compressed');
 zopfli.deflate(input, options, function(err, deflated) {});
 zopfli.zlib(input, options, function(err, zlibed) {});
 zopfli.gzip(input, options, function(err, gziped) {});
 ```
 
-### Buffer (sync):
+#### Buffer (sync):
 
-```javascript
-var zopfli = require("node-zopfli");
-var input = new Buffer('i want to be compressed');
+```js
+var zopfli = require('node-zopfli');
+var input = new Buffer('I want to be compressed');
 var deflated = zopfli.deflateSync(input, options);
 var zlibed = zopfli.zlibSync(input, options);
 var gziped = zopfli.gzipSync(input, options);
 ```
 
-## Api
+### API
 
-### compress(input, format, [options, callback])
+#### compress(input, format, [options, callback])
 
 `input` is the input buffer
 
@@ -83,15 +93,15 @@ var gziped = zopfli.gzipSync(input, options);
 
 If no callback is provided, it returns an A+ Promise.
 
-#### aliases
+##### aliases
 
 `deflate`, `zlib` and `gzip` methods are aliases on `compress` without `format` argument.
 
-### Options
+#### Options
 
-Here are the options with defaults values you can pass to zopfli :
+Here are the options with defaults values you can pass to zopfli:
 
-```javascript
+```js
 {
   verbose: false,
   verbose_more: false,
@@ -102,26 +112,44 @@ Here are the options with defaults values you can pass to zopfli :
 }
 ```
 
-#### numiterations
+##### numiterations
 Maximum amount of times to rerun forward and backward pass to optimize LZ77 compression cost. Good values: 10, 15 for small files, 5 for files over several MB in size or it will be too slow.
 
-#### blocksplitting
+##### blocksplitting
 If true, splits the data in multiple deflate blocks with optimal choice for the block boundaries. Block splitting gives better compression.
 
-#### blocksplittinglast
+##### blocksplittinglast
 If true, chooses the optimal block split points only after doing the iterative LZ77 compression. If false, chooses the block split points first, then does iterative LZ77 on each individual block. Depending on the file, either first or last gives the best compression.
 
-#### blocksplittingmax
+##### blocksplittingmax
 Maximum amount of blocks to split into (0 for unlimited, but this can give extreme results that hurt compression on some files).
 
 
-#Build from sources
+## Build from sources
 
-    git clone https://github.com/pierreinglebert/node-zopfli --recursive
-    cd node-zopfli
-    npm install
+```shell
+git clone https://github.com/pierreinglebert/node-zopfli --recursive
+cd node-zopfli
+npm install
+```
 
-# Tests
-mocha is used for tests, you can run them with :
+## Tests
+mocha is used for tests, you can run them with:
 
-    npm test
+```shell
+npm test
+```
+
+
+[npm-image]: https://img.shields.io/npm/v/node-zopfli.svg
+[npm-url]: https://www.npmjs.com/package/node-zopfli
+[waffle-image]: https://badge.waffle.io/pierreinglebert/node-zopfli.svg
+[waffle-url]: https://waffle.io/pierreinglebert/node-zopfli
+[travis-image]: https://img.shields.io/travis/pierreinglebert/node-zopfli/master.svg
+[travis-url]: https://travis-ci.org/pierreinglebert/node-zopfli
+[coveralls-image]: https://img.shields.io/coveralls/pierreinglebert/node-zopfli.svg
+[coveralls-url]: https://coveralls.io/r/pierreinglebert/node-zopfli?branch=master
+[dep-image]: https://img.shields.io/david/pierreinglebert/node-zopfli.svg
+[dep-url]: https://david-dm.org/pierreinglebert/node-zopfli
+[devDep-image]: https://img.shields.io/david/dev/pierreinglebert/node-zopfli.svg
+[devDep-url]: https://david-dm.org/pierreinglebert/node-zopfli#info=devDependencies
