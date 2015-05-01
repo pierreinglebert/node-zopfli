@@ -1,0 +1,50 @@
+environment:
+  node_pre_gyp_accessKeyId:
+    secure: sNiYns5iJ4x7UzU3Vwt6cwjmSKlJnVYTNPj/wJxtHes=
+  node_pre_gyp_secretAccessKey:
+    secure: aqsNf2cyJ0hpprZZvwJ3bLeUeFjZ0OhbJSulfs9VLA4rqmADnnbU//aL/NBoXQQJ
+  matrix:
+    - nodejs_version: 0.10
+    - nodejs_version: 0.12
+    # - nodejs_version: 1
+
+platform:
+  - x86
+  - x64
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - platform: x86
+      nodejs_version: 1
+    - platform: x64
+      nodejs_version: 1
+
+cache:
+  - '%APPDATA%\npm-cache -> package.json'           # npm cache
+  - 'node_modules -> package.json'                  # local npm modules
+
+install:
+  - ps: Install-Product node $env:nodejs_version $env:platform
+  # get zopfli submodule
+  - git submodule update --init --recursive
+  # add local node-pre-gyp dir to path
+  - SET PATH=node_modules\.bin;%PATH%
+  # use 64 bit python if platform is 64 bit
+  - if "%platform%" == "x64" set PATH=C:\Python27-x64;%PATH%
+  - if %platform% == x64 CALL "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" amd64
+  - if %platform% == x86 CALL "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" amd64_x86
+  # Print some information
+  - node -v
+  - npm -v
+  # Build
+  - npm install --build-from-source --msvs_version=2013
+  - npm test
+  - ps: >-
+      if ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[publish binary]")) {
+        cmd /c 'node_modules\.bin\node-pre-gyp --msvs_version=2013 package publish 2>&1'
+      }
+
+build: off
+test: off
+deploy: off
