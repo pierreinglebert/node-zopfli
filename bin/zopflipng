@@ -36,8 +36,18 @@ options.lossy_8bit = !!program.lossy;
 options.num_iterations = program.iterations || options.num_iterations;
 options.num_iterations_large = program.iterations_large || options.num_iterations_large;
 
+if(typeof program.args[0] !== 'string') {
+  console.log('You must provide a file to compress');
+  process.exit(1);
+}
+if(typeof program.args[1] !== 'string') {
+  console.log('You must provide a destination file');
+  process.exit(1);
+}
+
 if(fs.existsSync(program.args[0])) {
   zopfli.pngcompress(program.args[0], program.args[1], options);
 } else {
   console.log('File ' + program.args[0] + ' doesnt exist');
+  process.exit(1);
 }

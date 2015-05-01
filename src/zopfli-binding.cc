@@ -1,5 +1,6 @@
 #include "zopfli.h"
 #include "zopfli-binding.h"
+#include "png/zopflipng.h"
 
 namespace nodezopfli {
 
@@ -194,6 +195,7 @@ init(v8::Handle<v8::Object> exports) {
   NODE_SET_METHOD(exports, "deflate", CompressBinding::Async);
   NODE_SET_METHOD(exports, "deflateSync", CompressBinding::Sync);
   NODE_SET_METHOD(exports, "adler32", Adler32);
+  NODE_SET_METHOD(exports, "pngcompress", PNGDeflate);
 }
 
 NODE_MODULE(zopfli, init)
