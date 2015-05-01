@@ -1,7 +1,4 @@
-#include <node.h>
-#include <v8.h>
 #include "nan.h"
-
 
 #ifndef NODE_ZOPFLI_PNG_H_
 #define NODE_ZOPFLI_PNG_H_

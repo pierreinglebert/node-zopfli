@@ -2,7 +2,6 @@
 #define _NODE_ZOPFLI_H_
 #include <node.h>
 #include <v8.h>
-#include <string>
 #include "nan.h"
 
 #define _THROW(type, errmsg) \

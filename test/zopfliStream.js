@@ -4,7 +4,6 @@ var zlib = require('zlib');
 var async = require('async');
 var zopfli = require('../lib/zopfli');
 
-var expect = chai.expect;
 var assert = chai.assert;
 
 var path = require("path");

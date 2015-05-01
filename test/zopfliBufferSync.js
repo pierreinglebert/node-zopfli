@@ -1,11 +1,9 @@
 var chai = require("chai");
-var path = require("path");
 var fs = require("fs");
 var zlib = require('zlib');
 var async = require('async');
 var zopfli = require('../lib/zopfli');
 
-var expect = chai.expect;
 var assert = chai.assert;
 
 var testBufferSync = function(deflate, inflate, done) {

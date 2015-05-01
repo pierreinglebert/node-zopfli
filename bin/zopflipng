@@ -2,7 +2,6 @@
 
 var program = require('commander');
 var fs = require('fs');
-var async = require('async');
 var zopfli = require("../build/Release/zopfli");
 
 program

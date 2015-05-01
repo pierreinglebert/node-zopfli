@@ -1,9 +1,5 @@
 #include "zopfli.h"
-
-#include <string.h>  // memcpy
-#include <string>
-
-#include "./zopfli-binding.h"
+#include "zopfli-binding.h"
 
 namespace nodezopfli {
 
@@ -17,10 +13,8 @@ NAN_INLINE _NAN_METHOD_RETURN_TYPE ParseArgs(_NAN_METHOD_ARGS, ZopfliFormat& for
     _THROW(Exception::TypeError, "First argument must be a buffer");
   }
 
-  format = ZOPFLI_FORMAT_DEFLATE;
   if(args.Length() >= 2 && args[1]->IsString()) {
-    size_t count;
-    std::string given_format(NanCString(args[1]->ToString(), &count));
+    std::string given_format(*NanUtf8String(args[1]));
     if(given_format.compare("gzip") == 0) {
       format = ZOPFLI_FORMAT_GZIP;
     } else if(given_format.compare("zlib") == 0) {
