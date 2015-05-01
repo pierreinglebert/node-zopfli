@@ -1,3 +1,4 @@
+#include <node.h>
 #include "zopfli.h"
 #include "zopfli-binding.h"
 #include "png/zopflipng.h"
