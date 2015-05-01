@@ -29,7 +29,6 @@
     "host": "https://node-zopfli.s3.amazonaws.com"
   },
   "dependencies": {
-    "async": "^0.9.0",
     "bluebird": "^2.9.14",
     "commander": "^2.7.1",
     "defaults": "^1.0.2",
@@ -37,6 +36,7 @@
     "node-pre-gyp": "^0.6.4"
   },
   "devDependencies": {
+    "async": "^0.9.0",
     "blanket": "^1.1.6",
     "chai": "^2.1.2",
     "coveralls": "^2.11.2",
