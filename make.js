@@ -4,8 +4,9 @@
 
 require('shelljs/make');
 var path = require('path');
+var os   = require('os');
 
-var COVERALLS = path.join(__dirname, 'node_modules/coveralls/bin/coveralls.js');
+var COVERALLS = './node_modules/coveralls/bin/coveralls.js';
 var ISTANBUL  = path.join(__dirname, 'node_modules/.bin/istanbul');
 var JSHINT    = path.join(__dirname, 'node_modules/.bin/jshint');
 var MOCHA     = path.join(__dirname, 'node_modules/.bin/mocha');
@@ -35,17 +36,27 @@ var _MOCHA    = path.join(__dirname, 'node_modules/mocha/bin/_mocha');
     //
     target['test-coveralls'] = function() {
         exec(ISTANBUL + ' cover ' + _MOCHA + ' -- -R spec test');
-        var lcovStr = cat('./coverage/lcov.info');
-        exec(COVERALLS + ' ' + lcovStr);
-        rm('-rf', './lib-cov');
+        var command = os.platform() === 'win32' ?
+                     'type ' + path.normalize('./coverage/lcov.info') + ' | node ' + path.normalize(COVERALLS) :
+                     'cat ./coverage/lcov.info | node ' + COVERALLS;
+
+        try {
+            exec(command);
+        } catch (e) {
+            echo(e);
+        }
+
+        if (test('-d', path.normalize('./lib-cov'))) {
+            rm('-rf', './lib-cov');
+        }
     };
 
     //
     // make clean
     //
     target.clean = function() {
-        rm('-rf', './lib/binding');
-        rm('-rf', './lib/coverage');
+        rm('-rf', path.normalize('./lib/binding'));
+        rm('-rf', path.normalize('./lib/coverage'));
     };
 
     //
