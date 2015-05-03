@@ -56,7 +56,7 @@
   },
   "scripts": {
     "coveralls": "coveralls < ./coverage/lcov.info",
-    "install": "node-pre-gyp install --fallback-to-build --build-from-source",
+    "install": "node-pre-gyp install --fallback-to-build",
     "lint": "jshint .",
     "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
