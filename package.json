@@ -52,8 +52,13 @@
     "zopflipng": "bin/zopflipng"
   },
   "scripts": {
+    "build-source": "node-pre-gyp rebuild",
+    "clean": "rm -rf ./lib/binding; rm -rf ./coverage",
+    "coveralls": "coveralls < ./coverage/lcov.info",
     "install": "node-pre-gyp install --fallback-to-build --build-from-source",
-    "test": "make test"
+    "lint": "jshint ./examples ./lib ./test",
+    "test": "mocha test",
+    "test-cov": "istanbul cover ./node_modules/.bin/_mocha -- -R spec test"
   },
   "main": "lib/zopfli.js",
   "gypfile": true
