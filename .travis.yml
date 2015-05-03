@@ -31,8 +31,7 @@ before_install:
   - nvm use $NODE_VERSION
 
 install:
-  - npm i
-  - npm run build-source
+  - npm install --build-from-source
 
 script:
   - npm run lint
