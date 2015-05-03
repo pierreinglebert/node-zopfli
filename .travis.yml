@@ -23,7 +23,11 @@ before_install:
 
 install:
   - npm i
-  - ./node_modules/.bin/node-pre-gyp rebuild
+  - npm run build-source
 
 script:
-  - make test-coveralls
+  - npm run lint
+  - npm run test-cov
+
+after_success:
+  - npm run coveralls
