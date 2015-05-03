@@ -43,7 +43,6 @@
     "chai": "^2.3.0",
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.13",
-    "istanbul-coveralls": "^1.0.2",
     "jshint": "^2.7.0",
     "mocha": "^2.2.4",
     "randomstring": "^1.0.5"
@@ -53,11 +52,12 @@
     "zopflipng": "bin/zopflipng"
   },
   "scripts": {
+    "build-source": "node-pre-gyp rebuild",
+    "coveralls": "coveralls < ./coverage/lcov.info",
     "install": "node-pre-gyp install --fallback-to-build --build-from-source",
     "lint": "jshint .",
-    "mocha": "mocha -b --reporter spec test",
+    "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
-    "test-coveralls": "npm run test-cov && istanbul-coveralls",
     "test": "npm run lint && npm run mocha"
   },
   "main": "lib/zopfli.js",
