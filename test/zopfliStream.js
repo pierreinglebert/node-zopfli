@@ -1,3 +1,5 @@
+/* jshint mocha: true */
+
 'use strict';
 
 var chai = require('chai');
@@ -39,34 +41,34 @@ var testStream = function(deflate, inflate, done) {
       .pipe(inflate())
       .pipe(writeStream);
   },
-  function(err){
-    if(err) done(err);
+  function(err) {
+    if (err) done(err);
     done();
   });
 };
 
-describe('Zopfli stream',function() {
+describe('Zopfli stream', function() {
   before(function(done) {
     fs.writeFile(path.join(fixturesPath, 'big'), require('randomstring').generate(1 * 1024 * 1024), done);
   });
   after(function(done) {
     fs.unlink(path.join(fixturesPath, 'big'), done);
   });
-  describe('deflate',function() {
-    this.timeout(20000); // let time to deflate a big file
-    it('should deflate using stream by node zlib', function(done){
+  describe('deflate', function() {
+    this.timeout(20000);    // let time to deflate a big file
+    it('should deflate using stream by node zlib', function(done) {
       testStream(zopfli.createDeflate, zlib.createInflateRaw, done);
     });
   });
-  describe('zlib',function() {
-    this.timeout(20000); // let time to deflate a big file
-    it('should inflate using stream by node zlib', function(done){
+  describe('zlib', function() {
+    this.timeout(20000);    // let time to deflate a big file
+    it('should inflate using stream by node zlib', function(done) {
       testStream(zopfli.createZlib, zlib.createInflate, done);
     });
   });
-  describe('gzip',function() {
-    this.timeout(20000); // let time to deflate a big file
-    it('should inflate using stream by node gzip', function(done){
+  describe('gzip', function() {
+    this.timeout(20000);    // let time to deflate a big file
+    it('should inflate using stream by node gzip', function(done) {
       testStream(zopfli.createGzip, zlib.createGunzip, done);
     });
   });

@@ -27,11 +27,12 @@ var options = {
   blocksplittingmax: 15
 };
 
-if(program.iterations) options.numiterations = parseInt(program.iterations);
-if(program.verbose) options.verbose = program.verbose;
+if (program.iterations) options.numiterations = parseInt(program.iterations, 10);
+if (program.verbose) options.verbose = program.verbose;
 
 var method = zopfli.createGzip;
 var extension = 'gz';
+
 if (program.deflate) {
   method = zopfli.createDeflate;
   extension = 'zlib';
@@ -44,7 +45,7 @@ if (program.ext) {
   extension = program.ext;
 }
 
-if(program.args.length === 0) {
+if (program.args.length === 0) {
   program.help();
 } else {
   async.eachSeries(
@@ -61,7 +62,7 @@ if(program.args.length === 0) {
         });
     },
     function(err) {
-      if(err) throw err;
+      if (err) throw err;
     }
   );
 }

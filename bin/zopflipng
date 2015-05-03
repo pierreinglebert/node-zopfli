@@ -22,30 +22,30 @@ var options = {
   lossy_8bit: false,
   filter_strategies: [],
   auto_filter_strategy: true,
-  keepchunks:[],
+  keepchunks: [],
   use_zopfli: true,
   num_iterations: 15,
   num_iterations_large: 5,
-  block_split_strategy: 'both' //Split chunk strategy none, first, last, both
+  block_split_strategy: 'both'  // Split chunk strategy none, first, last, both
 };
 
 options.lossy_transparent = !!program.lossy_transparent;
 options.lossy_8bit = !!program.lossy;
-// if(program.filter_strategies) options.filter_strategies = []; //TODO
-// if(program.keepchunks) options.keepchunks = []; //TODO
+// if (program.filter_strategies) options.filter_strategies = []; //TODO
+// if (program.keepchunks) options.keepchunks = []; //TODO
 options.num_iterations = program.iterations || options.num_iterations;
 options.num_iterations_large = program.iterations_large || options.num_iterations_large;
 
-if(typeof program.args[0] !== 'string') {
+if (typeof program.args[0] !== 'string') {
   console.log('You must provide a file to compress');
   process.exit(1);
 }
-if(typeof program.args[1] !== 'string') {
+if (typeof program.args[1] !== 'string') {
   console.log('You must provide a destination file');
   process.exit(1);
 }
 
-if(fs.existsSync(program.args[0])) {
+if (fs.existsSync(program.args[0])) {
   zopfli.pngcompress(program.args[0], program.args[1], options);
 } else {
   console.log('File ' + program.args[0] + ' doesnt exist');

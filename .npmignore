@@ -1,9 +1,10 @@
 .gitignore
+.jshintignore
 .npmignore
-node_modules
-lib/binding
-build
-test
-Makefile
 .travis.yml
-examples
+Makefile
+build/
+examples/
+lib/binding/
+node_modules/
+test/

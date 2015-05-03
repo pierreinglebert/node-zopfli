@@ -204,7 +204,7 @@ NAN_METHOD(PNGDeflate) {
   error = ZopfliPNGOptimize(origpng, png_options, verbose, &resultpng);
 
   if (error) {
-    printf("Decoding error %i: %s\n", error, lodepng_error_text(error));
+    printf("Decoding error %u: %s\n", error, lodepng_error_text(error));
   } else {
     // Verify result, check that the result causes no decoding errors
     error = lodepng::decode(image, w, h, inputstate, resultpng);
