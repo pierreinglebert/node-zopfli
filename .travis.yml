@@ -1,9 +1,29 @@
-sudo: false
-language: "node_js"
-node_js:
-  - "0.10"
-  - "0.12"
-  - "iojs"
-script: make test-coveralls
+language: cpp
+
+os:
+  - linux
+  - osx
+
+env:
+  matrix:
+    - NODE_VERSION="0.10"
+    - NODE_VERSION="0.12"
+    - NODE_VERSION="iojs"
+
 matrix:
   fast_finish: true
+
+sudo: false
+
+before_install:
+  - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm
+  - source ~/.nvm/nvm.sh
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+
+install:
+  - npm i
+  - ./node_modules/.bin/node-pre-gyp rebuild
+
+script:
+  - make test-coveralls
