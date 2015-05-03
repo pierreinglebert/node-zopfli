@@ -52,7 +52,7 @@
     "zopflipng": "bin/zopflipng"
   },
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build --build-from-source",
+    "install": "./node_modules/node-pre-gyp/bin/node-pre-gyp install --fallback-to-build --build-from-source",
     "test": "make test"
   },
   "main": "lib/zopfli.js",
