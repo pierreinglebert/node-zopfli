@@ -4,7 +4,9 @@
   "description": "Bindings for Zopfli compressing lib. Compress gzip files 5% better than gzip.",
   "version": "1.2.6",
   "contributors": [
-    "duralog <funisher@gmail.com>"
+    "duralog <funisher@gmail.com>",
+    "MayhemYDG <stepien.nicolas@gmail.com>",
+    "XhmikosR <xhmikosr@gmail.com>"
   ],
   "keywords": [
     "zopfli",
