@@ -52,8 +52,13 @@
     "zopflipng": "bin/zopflipng"
   },
   "scripts": {
+    "build-source": "node-pre-gyp rebuild",
+    "coveralls": "coveralls < ./coverage/lcov.info",
     "install": "node-pre-gyp install --fallback-to-build --build-from-source",
-    "test": "make test"
+    "lint": "jshint .",
+    "mocha": "mocha test",
+    "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
+    "test": "npm run lint && npm run mocha"
   },
   "main": "lib/zopfli.js",
   "gypfile": true
