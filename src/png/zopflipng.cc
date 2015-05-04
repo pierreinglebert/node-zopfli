@@ -5,6 +5,13 @@
 #include "lodepng/lodepng.h"
 #include "zopflipng_lib.h"
 
+#if defined (_MSC_VER) && defined (_THROW)
+#undef _THROW
+#endif
+
+#define _THROW(type, errmsg) \
+  NanThrowError(_NAN_ERROR(type, errmsg));
+
 using namespace v8;
 
 NAN_INLINE bool GetOptionIfType(
@@ -70,11 +77,6 @@ NAN_INLINE bool GetOptionIfType(
   }
   return true;
 }
-
-#define _THROW(type, errmsg) \
-  NanThrowError(type(NanNew<v8::String>(errmsg)));
-
-using namespace v8;
 
 bool parseOptions(const Local<Object>& options, ZopfliPNGOptions& png_options) {
   Handle<Value> fieldValue;
