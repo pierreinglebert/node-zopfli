@@ -4,7 +4,10 @@
 
 var program = require('commander');
 var fs = require('fs');
-var zopfli = require('../build/Release/zopfli');
+var binary = require('node-pre-gyp');
+var path = require('path');
+var binding_path = binary.find(path.resolve(path.join(__dirname, '../package.json')));
+var zopfli = require(binding_path);
 
 program
   .version(require('../package.json').version)
@@ -13,8 +16,8 @@ program
   .option('--lossy', 'Convert 16-bit per channel images to 8-bit per channel')
   .option('--filter_strategies', 'Filter strategies to try : "zero", "one", "two", "three", "four", "minimum", "entropy", "predefined", "brute", if none, it will be guessed automatically')
   .option('--keepchunks', 'Chunks to keep')
-  .option('--iterations', 'Number of iterations for small images < 200ko')
-  .option('--iterations_large', 'Number of iterations for large images > 200ko')
+  .option('--iterations <n>', 'Number of iterations for small images < 200ko', parseInt)
+  .option('--iterations_large <n>', 'Number of iterations for large images > 200ko', parseInt)
   .parse(process.argv);
 
 var options = {
