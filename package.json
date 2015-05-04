@@ -2,7 +2,7 @@
   "name": "node-zopfli",
   "author": "Pierre Inglebert <pierre.inglebert@gmail.com>",
   "description": "Bindings for Zopfli compressing lib. Compress gzip files 5% better than gzip.",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "contributors": [
     "duralog <funisher@gmail.com>",
     "MayhemYDG <stepien.nicolas@gmail.com>",
