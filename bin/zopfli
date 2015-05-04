@@ -4,7 +4,7 @@
 
 var program = require('commander');
 var fs = require('fs');
-var async = require('async');
+var bluebird = require('bluebird');
 var zopfli = require('../lib/zopfli');
 
 program
@@ -14,7 +14,7 @@ program
   .option('--zlib', 'deflate using zlib container')
   .option('--gzip', 'deflate using gzip container')
   .option('-e, --ext <s>', 'overwrite default file extension')
-  .option('-i, --iterations <n>', 'number of iterations (higher = smaller = slower)')
+  .option('-i, --iterations <n>', 'number of iterations (higher = smaller = slower)', parseInt)
   .option('-v, --verbose', 'Verbose')
   .parse(process.argv);
 
@@ -48,21 +48,17 @@ if (program.ext) {
 if (program.args.length === 0) {
   program.help();
 } else {
-  async.eachSeries(
-    program.args,
-    function(item, next) {
-      fs.createReadStream(item)
-        .on('error', next)
-        .pipe(new method(options))
-        .on('error', next)
-        .pipe(fs.createWriteStream(item + '.' + extension))
-        .on('error', next)
-        .on('finish', function() {
-          next();
-        });
-    },
-    function(err) {
-      if (err) throw err;
-    }
+  bluebird.all(
+    program.args.map(function(item) {
+      return new bluebird(function(resolve, reject) {
+        fs.createReadStream(item)
+          .on('error', reject)
+          .pipe(new method(options))
+          .on('error', reject)
+          .pipe(fs.createWriteStream(item + '.' + extension))
+          .on('error', reject)
+          .on('finish', resolve);
+      });
+    })
   );
 }
