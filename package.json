@@ -55,6 +55,13 @@
     "zopfli": "bin/zopfli",
     "zopflipng": "bin/zopflipng"
   },
+  "files": [
+    "bin",
+    "lib",
+    "src",
+    "zopfli",
+    "binding.gyp"
+  ],
   "scripts": {
     "coveralls": "coveralls < ./coverage/lcov.info",
     "install": "node-pre-gyp install --fallback-to-build",
