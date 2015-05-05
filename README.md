@@ -8,7 +8,7 @@
 [![devDependency Status][devDep-image]][devDep-url]
 [![Stories in Ready][waffle-image]][waffle-url]
 
-Bindings for [Zopfli](https://en.wikipedia.org/wiki/Zopfli) compressing library.
+Node.js bindings for [Zopfli](https://en.wikipedia.org/wiki/Zopfli) compressing library.
 Compress gzip files 5% better compared to gzip.
 
 It is considerably slower than gzip (~100x) so you may want to use it only for static content and cached resources.
@@ -17,7 +17,7 @@ It is considerably slower than gzip (~100x) so you may want to use it only for s
 ## Prerequisites for building
 
 * Python 2.7
-* make (unix) or Visual Studio Express (Windows) see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
+* GCC (Unix) or Visual Studio Express (Windows), see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
 
 ## Usage
 
