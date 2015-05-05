@@ -51,6 +51,6 @@ if (typeof program.args[1] !== 'string') {
 if (fs.existsSync(program.args[0])) {
   zopfli.pngcompress(program.args[0], program.args[1], options);
 } else {
-  console.log('File ' + program.args[0] + ' doesnt exist');
+  console.log('File ' + program.args[0] + ' doesn\'t exist');
   process.exit(1);
 }
