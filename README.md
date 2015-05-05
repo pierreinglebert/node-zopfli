@@ -1,7 +1,8 @@
 # node-zopfli
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Linux Build Status][travis-image]][travis-url]
+[![Windows Build Status][appveyor-image]][appveyor-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 [![Dependency Status][dep-image]][dep-url]
 [![devDependency Status][devDep-image]][devDep-url]
@@ -145,8 +146,10 @@ npm test
 [npm-url]: https://www.npmjs.com/package/node-zopfli
 [waffle-image]: https://badge.waffle.io/pierreinglebert/node-zopfli.svg
 [waffle-url]: https://waffle.io/pierreinglebert/node-zopfli
-[travis-image]: https://img.shields.io/travis/pierreinglebert/node-zopfli/master.svg
+[travis-image]: https://img.shields.io/travis/pierreinglebert/node-zopfli/master.svg?label=Linux%20build
 [travis-url]: https://travis-ci.org/pierreinglebert/node-zopfli
+[appveyor-image]: https://img.shields.io/appveyor/ci/pierreinglebert/node-zopfli/master.svg?label=Windows%20build
+[appveyor-url]: https://ci.appveyor.com/project/pierreinglebert/node-zopfli/branch/master
 [coveralls-image]: https://img.shields.io/coveralls/pierreinglebert/node-zopfli.svg
 [coveralls-url]: https://coveralls.io/r/pierreinglebert/node-zopfli?branch=master
 [dep-image]: https://img.shields.io/david/pierreinglebert/node-zopfli.svg
