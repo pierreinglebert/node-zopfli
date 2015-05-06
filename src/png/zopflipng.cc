@@ -141,7 +141,7 @@ bool parseOptions(const Local<Object>& options, ZopfliPNGOptions& png_options) {
     return false;
   }
 
-  // Zopfli number of iterations on images > 200ko
+  // Zopfli number of iterations on images > 200 KiB
   if(!GetOptionIfType(options, NanNew<String>("num_iterations_large"), &png_options.num_iterations_large)) {
     _THROW(Exception::TypeError, "Wrong type for option 'num_iterations_large'");
     return false;
