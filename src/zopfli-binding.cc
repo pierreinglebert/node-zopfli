@@ -175,13 +175,13 @@ NAN_METHOD(Adler32) {
   NanScope();
 
   if(args.Length() >= 1 && !args[0]->IsUint32() && !args[0]->IsInt32()) {
-    return NanThrowError(_NAN_ERROR(Exception::TypeError, "adler must be an unsigned integer"));
+    return NanThrowError(Exception::TypeError(NanNew<v8::String>("adler must be an unsigned integer")));
   }
 
   unsigned int adler = args[0]->Uint32Value();
 
   if(args.Length() < 1 || !Buffer::HasInstance(args[1])) {
-    return NanThrowError(_NAN_ERROR(Exception::TypeError, "data must be a buffer"));
+    return NanThrowError(Exception::TypeError(NanNew<v8::String>("data must be a buffer")));
   }
   Local<Value> inbuffer = args[1];
   size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
