@@ -72,7 +72,7 @@ NAN_INLINE bool GetOptionIfType(
 }
 
 #define _THROW(type, errmsg) \
-  NanThrowError(_NAN_ERROR(type, errmsg));
+  NanThrowError(type(NanNew<v8::String>(errmsg)));
 
 using namespace v8;
 

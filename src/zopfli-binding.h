@@ -5,7 +5,7 @@
 #include "nan.h"
 
 #define _THROW(type, errmsg) \
-  NanThrowError(_NAN_ERROR(type, errmsg));
+  NanThrowError(type(NanNew<v8::String>(errmsg)));
 
 NAN_INLINE void GetOptionIfExists(
     const v8::Local<v8::Object> optionsObj
