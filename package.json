@@ -46,8 +46,8 @@
     "aws-sdk": "~2.0.25",
     "chai": "^2.3.0",
     "coveralls": "^2.11.2",
+    "eslint": "1.0.0",
     "istanbul": "^0.3.13",
-    "jshint": "^2.7.0",
     "mocha": "^2.2.4",
     "randomstring": "^1.0.5"
   },
@@ -65,7 +65,7 @@
   "scripts": {
     "coveralls": "coveralls < ./coverage/lcov.info",
     "install": "node-pre-gyp install --fallback-to-build",
-    "lint": "jshint .",
+    "lint": "eslint .",
     "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
     "test": "npm run lint && npm run mocha"

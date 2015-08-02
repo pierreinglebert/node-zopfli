@@ -20,7 +20,10 @@ var testBufferAsync = function(deflate, inflate, done) {
       } else {
         inflate(result, function(err, result) {
           if (!err) {
-            assert.equal(result.toString(), fs.readFileSync('test/fixtures/' + file).toString());
+            assert.equal(
+              result.toString(),
+              fs.readFileSync('test/fixtures/' + file).toString()
+            );
           }
           next(err);
         });
@@ -45,17 +48,17 @@ describe('Zopfli buffer async', function() {
     });
   });
   describe('deflate', function() {
-    it('should deflate using buffer by zopfli and inflated by node zlib', function(done) {
+    it('should deflate using buffer', function(done) {
       testBufferAsync(zopfli.deflate, zlib.inflateRaw, done);
     });
   });
   describe('zlib', function() {
-    it('should zlib using buffer by node zlib', function(done) {
+    it('should zlib using buffer', function(done) {
       testBufferAsync(zopfli.zlib, zlib.inflate, done);
     });
   });
   describe('gzip', function() {
-    it('should gzip using buffer by node zlib', function(done) {
+    it('should gzip using buffer', function(done) {
       testBufferAsync(zopfli.gzip, zlib.gunzip, done);
     });
   });

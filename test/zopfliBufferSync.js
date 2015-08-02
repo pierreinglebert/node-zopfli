@@ -20,7 +20,10 @@ var testBufferSync = function(deflate, inflate, done) {
     var result = deflate(buffer, {});
     inflate(result, function(err, result) {
       if (!err) {
-        assert.equal(result.toString(), fs.readFileSync(path.join(fixturesPath, file)).toString());
+        assert.equal(
+          result.toString(),
+          fs.readFileSync(path.join(fixturesPath, file)).toString()
+        );
       }
       next(err);
     });
@@ -32,17 +35,17 @@ var testBufferSync = function(deflate, inflate, done) {
 
 describe('Zopfli buffer sync', function() {
   describe('deflate', function() {
-    it('should deflate synchronously using buffer by node zlib', function(done) {
+    it('should deflate synchronously using buffer', function(done) {
       testBufferSync(zopfli.deflateSync, zlib.inflateRaw, done);
     });
   });
   describe('zlib', function() {
-    it('should zlib synchronously using buffer by node zlib', function(done) {
+    it('should zlib synchronously using buffer', function(done) {
       testBufferSync(zopfli.zlibSync, zlib.inflate, done);
     });
   });
   describe('gzip', function() {
-    it('should deflate synchronously using buffer by node zlib', function(done) {
+    it('should deflate synchronously using buffer', function(done) {
       testBufferSync(zopfli.gzipSync, zlib.gunzip, done);
     });
   });
