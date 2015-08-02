@@ -1,8 +1,13 @@
 #ifndef _NODE_ZOPFLI_H_
 #define _NODE_ZOPFLI_H_
+
 #include <node.h>
 #include <v8.h>
 #include "nan.h"
+
+#if defined (_MSC_VER) && defined (_THROW)
+#undef _THROW
+#endif
 
 #define _THROW(type, errmsg) \
   NanThrowError(type(NanNew<v8::String>(errmsg)));

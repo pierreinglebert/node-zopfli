@@ -103,7 +103,7 @@ class CompressWorker : public NanAsyncWorker {
 
     Local<Value> argv[] = {
       NanNew(NanNull()),
-      NanNewBufferHandle((char*)resultdata, resultsize)
+      NanNewBufferHandle((char*)resultdata, (uint32_t)resultsize)
     };
 
     callback->Call(2, argv);
@@ -147,7 +147,7 @@ NAN_METHOD(CompressBinding::Sync) {
     inbufferdata, inbuffersize,
     &out, &outsize);
 
-  Local<Object> actualBuffer = NanNewBufferHandle((char*)out, outsize);
+  Local<Object> actualBuffer = NanNewBufferHandle((char*)out, (uint32_t)outsize);
   NanReturnValue(actualBuffer);
 }
 
