@@ -15,12 +15,12 @@ var assert = chai.assert;
 
 var fixturesPath = path.join(__dirname, 'fixtures');
 
-function MemoryStream () {
+function MemoryStream() {
   stream.Writable.call(this);
   this.data = new Buffer(0);
 }
 util.inherits(MemoryStream, stream.Writable);
-MemoryStream.prototype._write = function (chunk, encoding, done) {
+MemoryStream.prototype._write = function(chunk, encoding, done) {
   this.data = Buffer.concat([this.data, chunk]);
   done();
 };
@@ -49,7 +49,8 @@ var testStream = function(deflate, inflate, done) {
 
 describe('Zopfli stream', function() {
   before(function(done) {
-    fs.writeFile(path.join(fixturesPath, 'big'), require('randomstring').generate(1 * 1024 * 1024), done);
+    var randStr = require('randomstring').generate(1 * 1024 * 1024);
+    fs.writeFile(path.join(fixturesPath, 'big'), randStr, done);
   });
   after(function(done) {
     fs.unlink(path.join(fixturesPath, 'big'), done);
