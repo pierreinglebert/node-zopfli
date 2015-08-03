@@ -15,11 +15,6 @@ platform:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - platform: x86
-      nodejs_version: 1
-    - platform: x64
-      nodejs_version: 1
 
 cache:
   - '%APPDATA%\npm-cache -> package.json'           # npm cache
