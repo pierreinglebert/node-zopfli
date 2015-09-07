@@ -38,7 +38,7 @@
     "bluebird": "^2.9.25",
     "commander": "^2.8.1",
     "defaults": "^1.0.2",
-    "nan": "2.0.0",
+    "nan": "^2.0.0",
     "node-pre-gyp": "^0.6.4"
   },
   "devDependencies": {
