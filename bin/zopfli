@@ -35,11 +35,11 @@ var extension = 'gz';
 
 if (program.deflate) {
   method = zopfli.createDeflate;
-  extension = 'zlib';
+  extension = 'deflate';
 }
 if (program.zlib) {
   method = zopfli.createZlib;
-  extension = 'deflate';
+  extension = 'zlib';
 }
 if (program.ext) {
   extension = program.ext;
