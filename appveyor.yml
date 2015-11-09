@@ -6,7 +6,7 @@ environment:
   matrix:
     - nodejs_version: 0.10
     - nodejs_version: 0.12
-    # - nodejs_version: 1
+    - nodejs_version: 3
 
 platform:
   - x86
@@ -14,11 +14,6 @@ platform:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - platform: x86
-      nodejs_version: 1
-    - platform: x64
-      nodejs_version: 1
 
 cache:
   - '%APPDATA%\npm-cache -> package.json'           # npm cache
