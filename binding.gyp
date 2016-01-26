@@ -21,7 +21,7 @@
           }
         },
         'Release': {
-          'cflags': ['-O2', '-W', '-Wall', '-Wextra', '-ansi', '-pedantic'],
+          'cflags': ['-O2', '-W', '-Wall', '-Wextra', '-ansi'],
           'msvs_settings': {
             'VCCLCompilerTool': {
               'AdditionalOptions': ['/Zc:inline', '/MP'],

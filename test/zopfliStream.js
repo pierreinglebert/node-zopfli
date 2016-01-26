@@ -56,19 +56,19 @@ describe('Zopfli stream', function() {
     fs.unlink(path.join(fixturesPath, 'big'), done);
   });
   describe('deflate', function() {
-    this.timeout(20000);    // let time to deflate a big file
+    this.timeout(30000);    // let time to deflate a big file
     it('should deflate using stream by node zlib', function(done) {
       testStream(zopfli.createDeflate, zlib.createInflateRaw, done);
     });
   });
   describe('zlib', function() {
-    this.timeout(20000);    // let time to deflate a big file
+    this.timeout(30000);    // let time to deflate a big file
     it('should inflate using stream by node zlib', function(done) {
       testStream(zopfli.createZlib, zlib.createInflate, done);
     });
   });
   describe('gzip', function() {
-    this.timeout(20000);    // let time to deflate a big file
+    this.timeout(30000);    // let time to deflate a big file
     it('should inflate using stream by node gzip', function(done) {
       testStream(zopfli.createGzip, zlib.createGunzip, done);
     });
