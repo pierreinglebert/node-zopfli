@@ -10,6 +10,7 @@ using namespace node;
 
 NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo<v8::Value>& info, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
   ZopfliInitOptions(&zopfli_options);
+  format = ZOPFLI_FORMAT_GZIP;
 
   if(info.Length() < 1 || !Buffer::HasInstance(info[0])) {
     Nan::ThrowTypeError("First argument must be a buffer");
