@@ -3,7 +3,7 @@ language: cpp
 os:
   - linux
   - osx
-    
+
 # don't re-build for tags so that [publish binary] is not re-run
 # https://github.com/travis-ci/travis-ci/issues/1532
 branches:
@@ -14,6 +14,8 @@ env:
   matrix:
     - NODE_VERSION="0.10"
     - NODE_VERSION="0.12"
+    - NODE_VERSION="4"
+    - NODE_VERSION="5"
     - NODE_VERSION="iojs"
   global:
     - secure: IxORreMUlF3CYU6129/JAQ00ZMR+yxrD8x+nAka8T+qQ8MI3OBkONwYeOXknE0PDgWvD315gPK9KQXSplruEuz8mmxjUJNOzvAikUMF7hVUIl79hSwLDkFZ1MC0rV90dbb7hOlxD1EjqASqTbEJPNarDzIcDxf/G6cubPgnxNbE=
