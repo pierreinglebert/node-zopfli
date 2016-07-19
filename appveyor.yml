@@ -28,12 +28,16 @@ install:
   # Get zopfli submodule
   - git submodule update --init --recursive
   - ps: Install-Product node $env:nodejs_version $env:platform
-  # Install newer npm for node.js 0.10
-  - ps: >-
-      if ($env:nodejs_version -eq "0.10") {
-        npm install -g npm@3
-        $env:PATH="$env:APPDATA\npm;$env:PATH"
-      }
+  # Install newer npm
+  - npm install -g npm@3
+  - ps: $env:path = $env:appdata + "\npm;" + $env:path
+  
+  # work around an issue with node-gyp v3.3.1 and node 4x
+  # package.json has no certificates in it so we're cool
+  # https://github.com/nodejs/node-gyp/issues/921
+  - ps: npm config set -g cafile=package.json | Write-Host;
+  - ps: npm config set -g strict-ssl=false | Write-Host;
+  
   # Add local node-pre-gyp dir to path
   - SET PATH=node_modules\.bin;%PATH%
   # Use 64-bit Python if platform is 64-bit
