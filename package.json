@@ -41,12 +41,12 @@
     "node-pre-gyp": "^0.6.4"
   },
   "devDependencies": {
-    "async": "^0.9.0",
-    "aws-sdk": "~2.0.25",
-    "chai": "^2.3.0",
+    "async": "^2.0.0",
+    "aws-sdk": "^2.4.8",
+    "chai": "^3.5.0",
     "coveralls": "^2.11.2",
     "eslint": "1.0.0",
-    "istanbul": "^0.3.13",
+    "istanbul": "^0.4.4",
     "mocha": "^2.2.4",
     "randomstring": "^1.0.5"
   },
