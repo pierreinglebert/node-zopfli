@@ -4,7 +4,6 @@
 
 var program = require('commander');
 var fs = require('fs');
-var bluebird = require('bluebird');
 var zopfli = require('../lib/zopfli');
 
 program
@@ -46,11 +45,12 @@ if (program.ext) {
 }
 
 if (program.args.length === 0) {
-  program.help();
+  program.outputHelp();
+  process.exit(1);
 } else {
-  bluebird.all(
+  Promise.all(
     program.args.map(function(item) {
-      return new bluebird(function(resolve, reject) {
+      return new Promise(function(resolve, reject) {
         fs.createReadStream(item)
           .on('error', reject)
           .pipe(new method(options))
