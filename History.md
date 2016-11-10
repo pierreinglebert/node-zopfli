@@ -1,3 +1,7 @@
+## v2.0.2
+
+* Support Node.js v7
+
 ## v2.0.1
 
 * Fix cli [#78](https://github.com/pierreinglebert/node-zopfli/pull/78)
