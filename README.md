@@ -17,7 +17,7 @@ It is considerably slower than gzip (~100x) so you may want to use it only for s
 ## Prerequisites for building
 
 * Python 2.7
-* GCC (Unix) or Visual Studio Express (Windows), see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
+* GCC and Make (Unix) or Visual Studio Express (Windows), see [Node Building tools](https://github.com/TooTallNate/node-gyp#installation)
 
 ## Usage
 
