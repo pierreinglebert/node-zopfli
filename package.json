@@ -63,7 +63,7 @@
   ],
   "scripts": {
     "coveralls": "coveralls < ./coverage/lcov.info",
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "egrep '^\\s*url\\s*=' .gitmodules | sed -E 's/^\\s*url\\s*=\\s*//' | while read url; do git clone $url; done; node-pre-gyp install --build-from-source",
     "lint": "eslint .",
     "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
