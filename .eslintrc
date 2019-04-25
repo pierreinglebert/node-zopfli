@@ -1,6 +1,7 @@
 env:
   node: true
   mocha: true
+  es6: true
 
 rules:
   # Possible Errors
@@ -39,7 +40,7 @@ rules:
   ## require spaces operator like var sum = 1 + 1;
   space-infix-ops: 2
   ## require spaces return, throw, case
-  space-return-throw-case: 2
+  keyword-spacing: 2
   ## no space before function, eg. 'function()'
   space-before-function-paren: [2, "never"]
   ## require space before blocks, eg 'function() {}'
