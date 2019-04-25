@@ -25,7 +25,7 @@
     "url": "https://github.com/pierreinglebert/node-zopfli/issues"
   },
   "engines": {
-    "node": ">=0.12"
+    "node": ">=6"
   },
   "binary": {
     "module_name": "zopfli",
@@ -35,20 +35,20 @@
     "host": "https://node-zopfli.s3.amazonaws.com"
   },
   "dependencies": {
-    "commander": "^2.8.1",
-    "defaults": "^1.0.2",
-    "nan": "^2.0.0",
-    "node-pre-gyp": "^0.6.4"
+    "commander": "^2.20.0",
+    "defaults": "^1.0.3",
+    "nan": "^2.13.2",
+    "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {
-    "async": "^2.0.0",
-    "aws-sdk": "^2.4.8",
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.2",
-    "eslint": "1.0.0",
+    "async": "^2.6.2",
+    "aws-sdk": "^2.442.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.3",
+    "eslint": "5.16.0",
     "istanbul": "^0.4.4",
-    "mocha": "^2.2.4",
-    "randomstring": "^1.0.5"
+    "mocha": "^6.1.4",
+    "randomstring": "^1.1.5"
   },
   "bin": {
     "zopfli": "bin/zopfli",
