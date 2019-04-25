@@ -1,3 +1,8 @@
+## v2.0.3
+
+* Drop support for Node.js < 6
+* Support Node.js v11
+
 ## v2.0.2
 
 * Support Node.js v7
