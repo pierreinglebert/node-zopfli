@@ -28,17 +28,15 @@
     "node": ">=6"
   },
   "binary": {
-    "module_name": "zopfli",
-    "module_path": "./lib/binding/{node_abi}-{platform}-{arch}",
-    "remote_path": "./{configuration}",
-    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
-    "host": "https://node-zopfli.s3.amazonaws.com"
+    "napi_versions": [
+      3
+    ]
   },
   "dependencies": {
     "commander": "^2.20.0",
     "defaults": "^1.0.3",
     "node-addon-api": "^1.6.3",
-    "node-pre-gyp": "^0.13.0"
+    "prebuild-install": "^5.3.0"
   },
   "devDependencies": {
     "async": "^2.6.2",
@@ -48,6 +46,8 @@
     "eslint": "5.16.0",
     "istanbul": "^0.4.4",
     "mocha": "^6.1.4",
+    "prebuild": "^9.0.0",
+    "prebuild-ci": "^3.1.0",
     "randomstring": "^1.1.5"
   },
   "bin": {
@@ -63,11 +63,11 @@
   ],
   "scripts": {
     "coveralls": "coveralls < ./coverage/lcov.info",
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "prebuild-install --runtime napi || prebuild-install || node-gyp rebuild",
     "lint": "eslint .",
     "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run mocha && prebuild-ci"
   },
   "main": "lib/zopfli.js",
   "gypfile": true

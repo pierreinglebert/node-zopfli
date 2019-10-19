@@ -46,8 +46,7 @@
           }
         }
       },
-
-      "target_name": "<(module_name)",
+      "target_name": "node-zopfli",
       "lflags": ["-lm"],
       "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "include_dirs": [
@@ -82,11 +81,11 @@
     {
       "target_name": "action_after_build",
       "type": "none",
-      "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")", "<(module_name)"],
+      "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")", "node-zopfli"],
       "copies": [
         {
-          "files": ["<(PRODUCT_DIR)/<(module_name).node"],
-          "destination": "<(module_path)"
+          "files": ["<(PRODUCT_DIR)/node-zopfli.node"],
+          "destination": "node-zopfli"
         }
       ]
     }
