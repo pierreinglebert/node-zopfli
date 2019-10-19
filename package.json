@@ -37,7 +37,7 @@
   "dependencies": {
     "commander": "^2.20.0",
     "defaults": "^1.0.3",
-    "nan": "^2.13.2",
+    "node-addon-api": "^1.6.3",
     "node-pre-gyp": "^0.13.0"
   },
   "devDependencies": {

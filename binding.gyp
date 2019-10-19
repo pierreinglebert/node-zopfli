@@ -6,7 +6,7 @@
     {
       'configurations': {
         'Debug': {
-          'cflags': ['-g3', '-O0'],
+          'cflags': ['-g3', '-O0', '-fno-exceptions'],
           'msvs_settings': {
             'VCCLCompilerTool': {
               'BasicRuntimeChecks': 3,          # /RTC1
@@ -48,11 +48,12 @@
       },
 
       "target_name": "<(module_name)",
-      'lflags': ['-lm'],
+      "lflags": ["-lm"],
+      "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "include_dirs": [
         "zopfli/src/zopfli",
         "zopfli/src/zopflipng",
-        "<!(node -e \"require('nan')\")"
+        "<!@(node -p \"require('node-addon-api').include\")"
       ],
       "sources": [
         "src/zopfli-binding.cc",
@@ -81,7 +82,7 @@
     {
       "target_name": "action_after_build",
       "type": "none",
-      "dependencies": ["<(module_name)"],
+      "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")", "<(module_name)"],
       "copies": [
         {
           "files": ["<(PRODUCT_DIR)/<(module_name).node"],

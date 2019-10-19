@@ -1,23 +1,23 @@
-#include <node.h>
+#include <napi.h>
 #include "zopfli.h"
 #include "zopfli-binding.h"
 #include "png/zopflipng.h"
 
 namespace nodezopfli {
 
-using namespace v8;
-using namespace node;
+using namespace Napi;
 
-NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo<v8::Value>& info, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
+inline void ParseArgs(const Napi::CallbackInfo& info, ZopfliFormat& format, ZopfliOptions& zopfli_options) {
   ZopfliInitOptions(&zopfli_options);
   format = ZOPFLI_FORMAT_GZIP;
+  const Napi::Env env = info.Env();
 
-  if(info.Length() < 1 || !Buffer::HasInstance(info[0])) {
-    Nan::ThrowTypeError("First argument must be a buffer");
+  if(info.Length() < 1 || !info[0].IsBuffer()) {
+    Napi::TypeError::New(env, "First argument must be a buffer").ThrowAsJavaScriptException();
   }
 
-  if(info.Length() >= 2 && info[1]->IsString()) {
-    std::string given_format(*Nan::Utf8String(info[1]));
+  if(info.Length() >= 2 && info[1].IsString()) {
+    std::string given_format(info[1].As<Napi::String>().Utf8Value().c_str());
     if(given_format.compare("gzip") == 0) {
       format = ZOPFLI_FORMAT_GZIP;
     } else if(given_format.compare("zlib") == 0) {
@@ -25,29 +25,26 @@ NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo
     } else if(given_format.compare("deflate") == 0) {
       format = ZOPFLI_FORMAT_DEFLATE;
     } else {
-      Nan::ThrowTypeError("Invalid Zopfli format");
+      Napi::TypeError::New(env, "Invalid Zopfli format").ThrowAsJavaScriptException();
     }
   } else {
-    Nan::ThrowTypeError("Second argument must be a string");
+    Napi::TypeError::New(env, "Second argument must be a string").ThrowAsJavaScriptException();
   }
 
-  if(info.Length() >= 3 && info[2]->IsObject()) {
-    Local<Object> options = info[2].As<Object>();
+  if(info.Length() >= 3 && info[2].IsObject()) {
+     Napi::Object options = info[2].As<Napi::Object>();
 
     if (!options.IsEmpty()) {
-      Local<String> option_name;
-      Local<Value> fieldValue;
+      Napi::Value fieldValue;
 
       // Whether to print output
-      option_name = Nan::New<String>("verbose").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.verbose = Nan::Get(options, option_name).ToLocalChecked()->BooleanValue();
+      if (options.Has("verbose")) {
+        zopfli_options.verbose = options.Get("verbose").As<Napi::Boolean>().Value();
       }
 
       // Whether to print more detailed output
-      option_name = Nan::New<String>("verbose_more").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.verbose_more = Nan::Get(options, option_name).ToLocalChecked()->BooleanValue();
+      if (options.Has("verbose_more")) {
+        zopfli_options.verbose_more = options.Get("verbose_more").As<Napi::Boolean>().Value();
       }
 
       /*
@@ -55,9 +52,8 @@ NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo
       compression cost. Good values: 10, 15 for small files, 5 for files over
       several MB in size or it will be too slow.
       */
-      option_name = Nan::New<String>("numiterations").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.numiterations = Nan::Get(options, option_name).ToLocalChecked()->Int32Value();
+      if (options.Has("numiterations")) {
+        zopfli_options.numiterations = options.Get("numiterations").As<Napi::Number>().Int32Value();
       }
 
       /*
@@ -66,9 +62,8 @@ NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo
       iterative LZ77 on each individual block. Depending on the file, either first
       or last gives the best compression. Default: false (0).
       */
-      option_name = Nan::New<String>("blocksplitting").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.blocksplitting = Nan::Get(options, option_name).ToLocalChecked()->Int32Value();
+      if (options.Has("blocksplitting")) {
+        zopfli_options.blocksplitting = options.Get("blocksplitting").As<Napi::Boolean>().Value();
       }
 
       /*
@@ -77,38 +72,31 @@ NAN_INLINE Nan::NAN_METHOD_RETURN_TYPE ParseArgs(const Nan::FunctionCallbackInfo
       iterative LZ77 on each individual block. Depending on the file, either first
       or last gives the best compression. Default: false (0).
       */
-      option_name = Nan::New<String>("blocksplittinglast").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.blocksplittinglast = Nan::Get(options, option_name).ToLocalChecked()->Int32Value();
+      if (options.Has("blocksplittinglast")) {
+        zopfli_options.blocksplittinglast = options.Get("blocksplittinglast").As<Napi::Boolean>().Value();
       }
 
       /*
       Maximum amount of blocks to split into (0 for unlimited, but this can give
       extreme results that hurt compression on some files). Default value: 15.
       */
-      option_name = Nan::New<String>("blocksplittingmax").ToLocalChecked();
-      if (Nan::Has(options, option_name).FromJust()) {
-        zopfli_options.blocksplittingmax = Nan::Get(options, option_name).ToLocalChecked()->Int32Value();
+      if (options.Has("blocksplittingmax")) {
+        zopfli_options.blocksplittingmax = options.Get("blocksplittingmax").As<Napi::Number>().Uint32Value();
       }
     }
   } else {
-    Nan::ThrowTypeError("Third argument must be an object");
+    Napi::TypeError::New(env, "Third argument must be an object").ThrowAsJavaScriptException();
   }
-  //info.GetReturnValue().SetUndefined();
 }
-
 
 // Base
 // PROTECTED
-class CompressWorker : public Nan::AsyncWorker {
+class CompressWorker : public Napi::AsyncWorker {
  public:
-  CompressWorker(Nan::Callback *callback, ZopfliFormat& format, ZopfliOptions& zopfli_options, Handle<Object> buffer)
-  : Nan::AsyncWorker(callback), format(format), zopfli_options(zopfli_options) {
-    Nan::HandleScope scope;
-    // Handle<Object> object = args[0]->ToObject();
-    size_t length = node::Buffer::Length(buffer);
-    const char *data = node::Buffer::Data(buffer);
-    input = std::string(data, length);
+  CompressWorker(const Napi::Function callback, ZopfliFormat& format, ZopfliOptions& zopfli_options, Napi::Buffer<unsigned char> buffer)
+  : Napi::AsyncWorker(callback), format(format), zopfli_options(zopfli_options) {
+    Napi::HandleScope scope(Env());
+    input = std::string((char*) buffer.Data(), buffer.Length());
     resultdata = 0;
     resultsize = 0;
   }
@@ -118,7 +106,7 @@ class CompressWorker : public Nan::AsyncWorker {
   // It is not safe to access V8, or V8 data structures
   // here, so everything we need for input and output
   // should go on `this`.
-  void Execute() {
+  void Execute() override {
     std::string* input = &this->input;
     ZopfliCompress(&zopfli_options, format, (const unsigned char*)input->data(), input->length(), (unsigned char **)&resultdata, &resultsize);
   }
@@ -126,15 +114,14 @@ class CompressWorker : public Nan::AsyncWorker {
   // Executed when the async work is complete
   // this function will be run inside the main event loop
   // so it is safe to use V8 again
-  void HandleOKCallback() {
-    Nan::HandleScope();
-
-    Local<Value> argv[] = {
-      Nan::Null(),
-      Nan::NewBuffer((char*)resultdata, resultsize).ToLocalChecked()
-    };
-
-    callback->Call(2, argv);
+  void OnOK() override {
+    Napi::HandleScope scope(Env());
+    Callback().MakeCallback(
+      Receiver().Value(),
+      {
+        Env().Null(),
+        Napi::Buffer<unsigned char>::New(Env(), (unsigned char*)resultdata, resultsize)
+      });
   }
 
  private:
@@ -147,32 +134,33 @@ class CompressWorker : public Nan::AsyncWorker {
 
 // CompressBinding
 // PUBLIC
-NAN_METHOD(CompressBinding::Async) {
+Napi::Value CompressBinding::Async(const Napi::CallbackInfo& info) {
+  const Napi::Env env = info.Env();
   ZopfliFormat format;
   ZopfliOptions zopfli_options;
-  if(info.Length() == 0 || (info.Length() >= 1 && !info[info.Length()-1]->IsFunction())) {
-    Nan::ThrowTypeError("Last argument must be a callback function");
+  if(info.Length() == 0 || (info.Length() >= 1 && !info[info.Length()-1].IsFunction())) {
+    Napi::TypeError::New(env, "Last argument must be a callback function").ThrowAsJavaScriptException();
   }
   ParseArgs(info, format, zopfli_options);
-
-  Nan::Callback *callback = new Nan::Callback(info[info.Length()-1].As<v8::Function>());
-  Nan::AsyncQueueWorker(new CompressWorker(callback, format, zopfli_options, info[0]->ToObject()));
-  info.GetReturnValue().SetUndefined();
+  Napi::Function callback = info[info.Length() - 1].As<Napi::Function>();
+  CompressWorker* worker = new CompressWorker(callback, format, zopfli_options, info[0].As<Napi::Buffer<unsigned char>>());
+  worker->Queue();
+  return env.Undefined();
 }
 
-NAN_METHOD(CompressBinding::Sync) {
+Napi::Value CompressBinding::Sync(const Napi::CallbackInfo& info) {
   ZopfliFormat format;
   ZopfliOptions zopfli_options;
   ParseArgs(info, format, zopfli_options);
-  Local<Object> inbuffer = info[0]->ToObject();
-  size_t inbuffersize = Buffer::Length(inbuffer);
-  const unsigned char * inbufferdata = (const unsigned char*)Buffer::Data(inbuffer);
+  Napi::Buffer<unsigned char> inbuffer = info[0].As<Napi::Buffer<unsigned char>>();
+  size_t inbuffersize = inbuffer.Length();
+  const unsigned char * inbufferdata = inbuffer.Data();
   unsigned char* out = 0;
   size_t outsize = 0;
   ZopfliCompress(&zopfli_options, format,
     inbufferdata, inbuffersize,
     &out, &outsize);
-  info.GetReturnValue().Set(Nan::NewBuffer((char*)out, outsize).ToLocalChecked());
+  return Napi::Buffer<unsigned char>::New(info.Env(), out, outsize);
 }
 
 unsigned updateAdler32(unsigned int adler, const unsigned char* data, size_t size)
@@ -195,33 +183,32 @@ unsigned updateAdler32(unsigned int adler, const unsigned char* data, size_t siz
   return (s2 << 16) | s1;
 }
 
-NAN_METHOD(Adler32) {
-  if(info.Length() >= 1 && !info[0]->IsUint32() && !info[0]->IsInt32()) {
-    return Nan::ThrowTypeError("adler must be an unsigned integer");
+Napi::Value Adler32(const Napi::CallbackInfo& info) {
+  const Napi::Env env = info.Env();
+  if(info.Length() >= 1 && !info[0].IsNumber()) {
+    Napi::TypeError::New(env, "adler must be an unsigned integer").ThrowAsJavaScriptException();
+    return env.Null();
   }
-
-  unsigned int adler = info[0]->Uint32Value();
-
-  if(info.Length() < 1 || !Buffer::HasInstance(info[1])) {
-    return Nan::ThrowTypeError("data must be a buffer");
+  unsigned int adler = info[0].As<Napi::Number>().Uint32Value();
+  if(info.Length() < 1 || !info[1].IsBuffer()) {
+    Napi::TypeError::New(env, "data must be a buffer").ThrowAsJavaScriptException();
+    return env.Null();
   }
-  Local<Value> inbuffer = info[1];
-  size_t inbuffersize = Buffer::Length(inbuffer->ToObject());
-  const unsigned char * data = (const unsigned char*)Buffer::Data(inbuffer->ToObject());
+  Napi::Buffer<unsigned char> inbuffer = info[1].As<Napi::Buffer<unsigned char>>();
+  size_t inbuffersize = inbuffer.Length();
+  const unsigned char * data = inbuffer.Data();
   adler = updateAdler32(adler, data, inbuffersize);
-  info.GetReturnValue().Set(Nan::New<Uint32>(adler));
+  return Napi::Number::New(env, adler);
 }
 
-// NAN_MODULE_INIT(Init) {
-//   NAN_EXPORT(target, Foo);
-// }
-
-NAN_MODULE_INIT(Init) {
-  Nan::SetMethod(target, "deflate", CompressBinding::Async);
-  Nan::SetMethod(target, "deflateSync", CompressBinding::Sync);
-  Nan::SetMethod(target, "adler32", Adler32);
-  Nan::SetMethod(target, "pngcompress", PNGDeflate);
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  exports.Set(Napi::String::New(env, "deflate"), Napi::Function::New(env, CompressBinding::Async));
+  exports.Set(Napi::String::New(env, "deflateSync"), Napi::Function::New(env, CompressBinding::Sync));
+  exports.Set(Napi::String::New(env, "adler32"), Napi::Function::New(env, Adler32));
+  exports.Set(Napi::String::New(env, "pngcompress"), Napi::Function::New(env, PNGDeflate));
+  return exports;
 }
-NODE_MODULE(zopfli, Init)
+
+NODE_API_MODULE(zopfli, Init)
 
 }
