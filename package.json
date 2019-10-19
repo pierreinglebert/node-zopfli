@@ -69,7 +69,7 @@
     "lint": "eslint .",
     "mocha": "mocha test",
     "test-cov": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec test",
-    "test": "npm run lint && npm run mocha && node prebuild-ci"
+    "test": "npm run lint && npm run mocha && node custom-prebuild-ci"
   },
   "main": "lib/zopfli.js",
   "gypfile": true
