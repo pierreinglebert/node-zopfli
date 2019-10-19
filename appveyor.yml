@@ -10,18 +10,18 @@ environment:
   node_pre_gyp_secretAccessKey:
     secure: aqsNf2cyJ0hpprZZvwJ3bLeUeFjZ0OhbJSulfs9VLA4rqmADnnbU//aL/NBoXQQJ
   matrix:
-    - nodejs_version: "6"
-      platform: x64
-    - nodejs_version: "7"
-      platform: x64
-    - nodejs_version: "8"
-      platform: x64
-    - nodejs_version: "9"
-      platform: x64
-    - nodejs_version: "10"
-      platform: x64
-    - nodejs_version: "11"
-      platform: x64
+  - nodejs_version: "8"
+    nodejs_arch: "x86"
+  - nodejs_version: "8"
+    nodejs_arch: "x64"
+  - nodejs_version: "10"
+    nodejs_arch: "x86"
+  - nodejs_version: "10"
+    nodejs_arch: "x64"
+  - nodejs_version: "12"
+    nodejs_arch: "x86"
+  - nodejs_version: "12"
+    nodejs_arch: "x64"
 
 matrix:
   fast_finish: true
@@ -29,9 +29,8 @@ matrix:
 install:
   # Get zopfli submodule
   - git submodule update --init --recursive
-  - ps: Install-Product node $env:nodejs_version $env:platform
-  # Install newer npm
-  - npm install -g npm@3
+  - ps: Get-WmiObject Win32_Processor
+  - ps: Install-Product node $env:nodejs_version $env:nodejs_arch
   - ps: $env:path = $env:appdata + "\npm;" + $env:path
 
   # work around an issue with node-gyp v3.3.1 and node 4x

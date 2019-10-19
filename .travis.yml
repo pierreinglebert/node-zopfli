@@ -12,12 +12,9 @@ branches:
 
 env:
   matrix:
-    - NODE_VERSION="6"
-    - NODE_VERSION="7"
     - NODE_VERSION="8"
-    - NODE_VERSION="9"
     - NODE_VERSION="10"
-    - NODE_VERSION="11"
+    - NODE_VERSION="12"
   global:
     - secure: IxORreMUlF3CYU6129/JAQ00ZMR+yxrD8x+nAka8T+qQ8MI3OBkONwYeOXknE0PDgWvD315gPK9KQXSplruEuz8mmxjUJNOzvAikUMF7hVUIl79hSwLDkFZ1MC0rV90dbb7hOlxD1EjqASqTbEJPNarDzIcDxf/G6cubPgnxNbE=
     - secure: eGf5iU0ixKUhp4z+/o8/6A7lvL33nZFCS510gJzytgh0qpACHSYz+2KzNT+ddYRE2Mobj3WPqxXRq8mtMAlyuXogwQhmnYOBtskSkPUK+u5DhX+s1IQHu7DyGfx+h44jlOX2D3peKL0HOLl+SPDkzAt4Xec/W3VNPHolQDy9Tjg=

@@ -1,8 +1,8 @@
-#include "nan.h"
+#include "napi.h"
 
 #ifndef NODE_ZOPFLI_PNG_H_
 #define NODE_ZOPFLI_PNG_H_
 
-NAN_METHOD(PNGDeflate);
+Napi::Value PNGDeflate(const Napi::CallbackInfo& info);
 
 #endif

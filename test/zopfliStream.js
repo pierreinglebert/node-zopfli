@@ -17,7 +17,7 @@ var fixturesPath = path.join(__dirname, 'fixtures');
 
 function MemoryStream() {
   stream.Writable.call(this);
-  this.data = new Buffer(0);
+  this.data = Buffer.alloc(0);
 }
 util.inherits(MemoryStream, stream.Writable);
 MemoryStream.prototype._write = function(chunk, encoding, done) {
