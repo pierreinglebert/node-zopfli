@@ -51,10 +51,6 @@ install:
   # Build
   - npm install --build-from-source --msvs_version=2015
   - npm test
-  - ps: >-
-      if ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[publish binary]")) {
-        cmd /c 'node_modules\.bin\node-pre-gyp --msvs_version=2015 package publish 2>&1'
-      }
 
 cache:
   - 'node_modules -> package.json'                  # local npm modules
