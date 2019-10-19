@@ -11,7 +11,7 @@ if (!process.env.CI) process.exit();
 if (process.version.startsWith('v8.')) {
   const ps = spawn('prebuild', [
     '-r', 'node',
-    '-t', '57',
+    '-t', '8.16.0',
     '-u', process.env.PREBUILD_TOKEN,
     '--verbose'
   ], {
