@@ -4,10 +4,7 @@
 
 var program = require('commander');
 var fs = require('fs');
-var binary = require('node-pre-gyp');
-var path = require('path');
-var binding_path = binary.find(path.join(__dirname, '../package.json'));
-var zopfli = require(binding_path);
+var zopfli = require('../lib/zopfli');
 
 program
   .version(require('../package.json').version)
