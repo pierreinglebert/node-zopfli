@@ -9,11 +9,13 @@ on:
     branches: [ master ]
 jobs:
   ci:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x, 19.x]
+        os: [ubuntu-latest]  # [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [10.x, 12.x, 14.x, 16.x, 18.x, 19.x]
+        python-version: ['2.7']  # ['2.7', '3.11']  # NOTE: legacy Python!!
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -22,7 +24,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - uses: actions/setup-python@v4
         with:
-          node-version: 2.7  # NOTE: legacy Python!!
+          node-version: ${{ matrix.python-version }}
       - run: npm install --build-from-source
       - run: npm run lint
       - run: run test-cov
